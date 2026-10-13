@@ -17,7 +17,7 @@ export class GastosService {
     return new Date(`${anio}-${mes}-${dia}T${hora}`);
   }
 
-  async create(createGastoDto: CreateGastoDto) {
+  async create(usuarioId: number, createGastoDto: CreateGastoDto) {
     const categoriaExiste = await this.prisma.categoria.findUnique({
       where: { id: createGastoDto.categoria },
     });
@@ -28,19 +28,28 @@ export class GastosService {
       );
     }
 
+    const fecha = createGastoDto.fecha
+      ? this.parseFechaArg(createGastoDto.fecha)
+      : new Date();
+
     return this.prisma.gasto.create({
       data: {
         descripcion: createGastoDto.descripcion,
-        valor: createGastoDto.valor,
-        id_categoria_fk: createGastoDto.categoria,
+        monto: createGastoDto.valor,
+        fecha,
+        categoriaId: createGastoDto.categoria,
+        usuarioId,
       },
     });
   }
 
-  async findAll(filterDto?: FilterGastosDto) {
+  async findAll(usuarioId: number, filterDto?: FilterGastosDto) {
     const { page = 1, limit = 10, fechaInicio, fechaFin, categoriaId } =
       filterDto || {};
-    const where: Prisma.GastoWhereInput = {};
+
+    const where: Prisma.GastoWhereInput = {
+      usuarioId,
+    };
 
     if (fechaInicio || fechaFin) {
       where.fecha = {
@@ -50,7 +59,7 @@ export class GastosService {
     }
 
     if (categoriaId) {
-      where.id_categoria_fk = Number(categoriaId);
+      where.categoriaId = Number(categoriaId);
     }
 
     const pageNum = Number(page);
@@ -79,9 +88,12 @@ export class GastosService {
     };
   }
 
-  async findOne(id: number) {
-    const gasto = await this.prisma.gasto.findUnique({
-      where: { id },
+  async findOne(usuarioId: number, id: number) {
+    const gasto = await this.prisma.gasto.findFirst({
+      where: {
+        id,
+        usuarioId,
+      },
       include: {
         categoria: true,
       },
@@ -94,8 +106,8 @@ export class GastosService {
     return gasto;
   }
 
-  async update(id: number, updateGastoDto: UpdateGastoDto) {
-    await this.findOne(id);
+  async update(usuarioId: number, id: number, updateGastoDto: UpdateGastoDto) {
+    await this.findOne(usuarioId, id);
 
     if (updateGastoDto.categoria !== undefined) {
       const categoriaExiste = await this.prisma.categoria.findUnique({
@@ -113,21 +125,24 @@ export class GastosService {
       where: { id },
       data: {
         descripcion: updateGastoDto.descripcion,
-        valor: updateGastoDto.valor,
-        id_categoria_fk: updateGastoDto.categoria,
+        monto: updateGastoDto.valor,
+        categoriaId: updateGastoDto.categoria,
+        ...(updateGastoDto.fecha && {
+          fecha: this.parseFechaArg(updateGastoDto.fecha),
+        }),
       },
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(usuarioId: number, id: number) {
+    await this.findOne(usuarioId, id);
 
     return await this.prisma.gasto.delete({
       where: { id },
     });
   }
 
-  async getResumen(filterDto?: FilterResumenDto) {
+  async getResumen(usuarioId: number, filterDto?: FilterResumenDto) {
     const ahora = new Date();
     const anio = filterDto?.anio ? Number(filterDto.anio) : ahora.getFullYear();
     const mes = filterDto?.mes ? Number(filterDto.mes) : undefined;
@@ -136,16 +151,15 @@ export class GastosService {
     let fechaFin: Date;
 
     if (mes) {
-      // Filtro por un mes específico
       fechaInicio = new Date(Date.UTC(anio, mes - 1, 1, 0, 0, 0, 0));
       fechaFin = new Date(Date.UTC(anio, mes, 0, 23, 59, 59, 999));
     } else {
-      // Filtro por todo el año
       fechaInicio = new Date(Date.UTC(anio, 0, 1, 0, 0, 0, 0));
       fechaFin = new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999));
     }
 
     const where: Prisma.GastoWhereInput = {
+      usuarioId,
       fecha: {
         gte: fechaInicio,
         lte: fechaFin,
@@ -153,14 +167,14 @@ export class GastosService {
     };
 
     const agrupado = await this.prisma.gasto.groupBy({
-      by: ['id_categoria_fk'],
+      by: ['categoriaId'],
       _sum: {
-        valor: true,
+        monto: true,
       },
       where,
     });
 
-    const idsCategorias = agrupado.map((item) => item.id_categoria_fk);
+    const idsCategorias = agrupado.map((item) => item.categoriaId);
     const categorias = await this.prisma.categoria.findMany({
       where: { id: { in: idsCategorias } },
     });
@@ -168,21 +182,21 @@ export class GastosService {
     const mapaCategorias = new Map(categorias.map((c) => [c.id, c.nombre]));
 
     const totalGeneral = agrupado.reduce(
-      (acum, item) => acum + Number(item._sum.valor || 0),
+      (acum, item) => acum + Number(item._sum?.monto || 0),
       0,
     );
 
     const porCategoria = agrupado.map((item) => {
-      const total = Number(item._sum.valor || 0);
+      const total = Number(item._sum?.monto || 0);
       const porcentaje =
         totalGeneral > 0
           ? Number(((total / totalGeneral) * 100).toFixed(2))
           : 0;
 
       return {
-        categoriaId: item.id_categoria_fk,
+        categoriaId: item.categoriaId,
         categoriaNombre:
-          mapaCategorias.get(item.id_categoria_fk) || 'Sin categoría',
+          mapaCategorias.get(item.categoriaId) || 'Sin categoría',
         total,
         porcentaje,
       };

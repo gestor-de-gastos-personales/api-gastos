@@ -13,15 +13,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  nombre    String
+  createdAt DateTime @default(now())
+  gastos    Gasto[]
+}
+
 model Gasto {
-  id          Int   @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   descripcion String
-  id_categoria_fk Int
-  categoria   Categoria @relation(fields: [id_categoria_fk], references: [id])
-  valor       Decimal  @db.Decimal(10, 2)
-  fecha       DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  monto       Decimal
+  fecha       DateTime
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  
+  // Relación con Usuario
+  usuarioId   Int
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  
+  createdAt   DateTime  @default(now())
 }
 
 model Categoria {
