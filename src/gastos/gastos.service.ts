@@ -17,28 +17,88 @@ export class GastosService {
     return new Date(`${anio}-${mes}-${dia}T${hora}`);
   }
 
-  async create(usuarioId: number, createGastoDto: CreateGastoDto) {
-    const categoriaExiste = await this.prisma.categoria.findUnique({
-      where: { id: createGastoDto.categoria },
-    });
+  // Resuelve el ID interno del usuario a partir de un ID numérico o telegramId
+  private async getOrCreateUsuarioId(usuarioIdentifier: any, dtoTelegramId?: string): Promise<number> {
+    const tgId = dtoTelegramId || (typeof usuarioIdentifier === 'string' ? usuarioIdentifier : null);
+
+    if (tgId) {
+      let usuario = await this.prisma.usuario.findFirst({
+        where: { telegramId: String(tgId) },
+      });
+
+      if (!usuario) {
+        usuario = await this.prisma.usuario.create({
+          data: {
+            telegramId: String(tgId),
+            nombre: `Usuario Telegram ${tgId}`,
+          },
+        });
+      }
+      return usuario.id;
+    }
+
+    return Number(usuarioIdentifier);
+  }
+
+  async create(usuarioIdentifier: any, createGastoDto: any) {
+    // 1. Obtener/Crear el usuario correspondiente
+    const usuarioId = await this.getOrCreateUsuarioId(
+      usuarioIdentifier,
+      createGastoDto.telegramId,
+    );
+
+    // 2. Buscar categoría por ID (si es número) o por Nombre (si es string)
+    const catInput = createGastoDto.categoria ?? createGastoDto.category;
+    let categoriaExiste = null;
+
+    if (typeof catInput === 'number' || (!isNaN(Number(catInput)) && Number.isInteger(Number(catInput)))) {
+      categoriaExiste = await this.prisma.categoria.findUnique({
+        where: { id: Number(catInput) },
+      });
+    }
+
+    if (!categoriaExiste && catInput) {
+      categoriaExiste = await this.prisma.categoria.findFirst({
+        where: {
+          nombre: {
+            equals: String(catInput),
+            mode: 'insensitive',
+          },
+        },
+      });
+    }
 
     if (!categoriaExiste) {
       throw new NotFoundException(
-        `La categoría con ID #${createGastoDto.categoria} no existe`,
+        `La categoría '${catInput}' no existe en la base de datos.`,
       );
     }
 
+    // 3. Procesar fecha, monto y descripción
     const fecha = createGastoDto.fecha
       ? this.parseFechaArg(createGastoDto.fecha)
       : new Date();
 
+    const monto = Number(
+      createGastoDto.valor ?? createGastoDto.monto ?? createGastoDto.total,
+    );
+
+    const comercioStr = createGastoDto.comercio ?? createGastoDto.merchant;
+    const descStr = createGastoDto.descripcion ?? createGastoDto.description;
+    const descripcion = descStr || comercioStr || '';
+
+    // 4. Crear el registro usando las conexiones relacionales explícitas
     return this.prisma.gasto.create({
       data: {
-        descripcion: createGastoDto.descripcion,
-        monto: createGastoDto.valor,
+        descripcion,
+        monto,
         fecha,
-        categoriaId: createGastoDto.categoria,
-        usuarioId,
+        categoria: {
+          connect: { id: categoriaExiste.id },
+        },
+        usuario: {
+          connect: { id: usuarioId },
+        },
       },
     });
   }
@@ -109,24 +169,43 @@ export class GastosService {
   async update(usuarioId: number, id: number, updateGastoDto: UpdateGastoDto) {
     await this.findOne(usuarioId, id);
 
+    let categoriaId: number | undefined;
+
     if (updateGastoDto.categoria !== undefined) {
-      const categoriaExiste = await this.prisma.categoria.findUnique({
-        where: { id: updateGastoDto.categoria },
-      });
+      const catInput = updateGastoDto.categoria;
+      let categoriaExiste = null;
+
+      if (typeof catInput === 'number' || (!isNaN(Number(catInput)) && Number.isInteger(Number(catInput)))) {
+        categoriaExiste = await this.prisma.categoria.findUnique({
+          where: { id: Number(catInput) },
+        });
+      }
+
+      if (!categoriaExiste && catInput) {
+        categoriaExiste = await this.prisma.categoria.findFirst({
+          where: {
+            nombre: {
+              equals: String(catInput),
+              mode: 'insensitive',
+            },
+          },
+        });
+      }
 
       if (!categoriaExiste) {
         throw new NotFoundException(
-          `La categoría con ID #${updateGastoDto.categoria} no existe`,
+          `La categoría '${catInput}' no existe`,
         );
       }
+      categoriaId = categoriaExiste.id;
     }
 
     return await this.prisma.gasto.update({
       where: { id },
       data: {
-        descripcion: updateGastoDto.descripcion,
+        descripcion: updateGastoDto.descripcion ?? '',
         monto: updateGastoDto.valor,
-        categoriaId: updateGastoDto.categoria,
+        ...(categoriaId && { categoria: { connect: { id: categoriaId } } }),
         ...(updateGastoDto.fecha && {
           fecha: this.parseFechaArg(updateGastoDto.fecha),
         }),
@@ -142,7 +221,9 @@ export class GastosService {
     });
   }
 
-  async getResumen(usuarioId: number, filterDto?: FilterResumenDto) {
+  async getResumen(usuarioIdentifier: any, filterDto?: FilterResumenDto) {
+    const usuarioId = await this.getOrCreateUsuarioId(usuarioIdentifier);
+
     const ahora = new Date();
     const anio = filterDto?.anio ? Number(filterDto.anio) : ahora.getFullYear();
     const mes = filterDto?.mes ? Number(filterDto.mes) : undefined;

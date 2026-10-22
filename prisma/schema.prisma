@@ -14,12 +14,14 @@ datasource db {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  nombre    String
-  createdAt DateTime @default(now())
-  gastos    Gasto[]
+  id         Int      @id @default(autoincrement())
+  email      String?  @unique // 👈 Debe tener el '?' para permitir valores null
+  password   String?
+  nombre     String?
+  telegramId String?  @unique
+  gastos     Gasto[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Gasto {
