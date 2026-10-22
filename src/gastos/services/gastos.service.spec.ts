@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosService } from './gastos.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -118,19 +118,45 @@ describe('GastosService', () => {
       ).rejects.toBeInstanceOf(NotFoundException);
       expect(prismaMock.gasto.create).not.toHaveBeenCalled();
     });
+
+    it.each([
+      ['2026-10-20', '2026-10-20T00:00:00.000Z'],
+      ['20-10-2026', '2026-10-20T00:00:00.000Z'],
+    ])('acepta la fecha %s al registrar un gasto', async (fecha, esperada) => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 1 });
+      prismaMock.categoria.findFirst.mockResolvedValue({ id: 2, nombre: 'Ocio' });
+      prismaMock.gasto.create.mockResolvedValue({ id: 4 });
+
+      await service.create('123', { monto: 100, categoria: 'Ocio', fecha });
+
+      expect(prismaMock.gasto.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ fecha: new Date(esperada) }),
+        }),
+      );
+    });
   });
 
   describe('findAll', () => {
     it('devuelve datos y metadatos de paginación', async () => {
-      const gastos = [{ id: 1 }, { id: 2 }];
+      const gastos = [
+        { id: 1, fecha: new Date('2026-10-20T00:00:00.000Z') },
+        { id: 2, fecha: new Date('2026-10-19T00:00:00.000Z') },
+      ];
       prismaMock.gasto.findMany.mockResolvedValue(gastos);
       prismaMock.gasto.count.mockResolvedValue(25);
 
       const resultado = await service.findAll(1, { page: 2, limit: 10 });
 
-      expect(resultado).toEqual({
-        data: gastos,
-        meta: { total: 25, page: 2, limit: 10, totalPages: 3 },
+      expect(resultado.data).toEqual([
+        { ...gastos[0], fechaFormateada: '20-10-2026' },
+        { ...gastos[1], fechaFormateada: '19-10-2026' },
+      ]);
+      expect(resultado.meta).toEqual({
+        total: 25,
+        page: 2,
+        limit: 10,
+        totalPages: 3,
       });
       expect(prismaMock.gasto.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ skip: 10, take: 10 }),
@@ -157,10 +183,17 @@ describe('GastosService', () => {
 
   describe('findOne', () => {
     it('devuelve el gasto del usuario', async () => {
-      const gasto = { id: 5, usuarioId: 1 };
+      const gasto = {
+        id: 5,
+        usuarioId: 1,
+        fecha: new Date('2026-10-20T00:00:00.000Z'),
+      };
       prismaMock.gasto.findFirst.mockResolvedValue(gasto);
 
-      await expect(service.findOne(1, 5)).resolves.toEqual(gasto);
+      await expect(service.findOne(1, 5)).resolves.toEqual({
+        ...gasto,
+        fechaFormateada: '20-10-2026',
+      });
     });
 
     it('lanza NotFoundException si el gasto no pertenece al usuario', async () => {
@@ -283,6 +316,51 @@ describe('GastosService', () => {
 
       expect(resumen.totalGeneral).toBe(0);
       expect(resumen.porCategoria).toEqual([]);
+    });
+
+    it.each([
+      ['WEEK', '2026-10-19T00:00:00.000Z'],
+      ['15_DAYS', '2026-10-08T00:00:00.000Z'],
+      ['MONTH', '2026-10-01T00:00:00.000Z'],
+      ['2_MONTHS', '2026-08-22T00:00:00.000Z'],
+      ['YEAR', '2026-01-01T00:00:00.000Z'],
+    ] as const)('calcula el inicio del rango %s', async (rango, inicio) => {
+      prismaMock.gasto.groupBy.mockResolvedValue([]);
+      prismaMock.categoria.findMany.mockResolvedValue([]);
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
+
+      try {
+        const resumen = await service.getResumen(5, { rango });
+
+        const where = prismaMock.gasto.groupBy.mock.calls[0][0].where;
+        expect(where.fecha.gte).toEqual(new Date(inicio));
+        expect(resumen.periodo.rango).toBe(rango);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('prioriza las fechas explícitas sobre el rango', async () => {
+      prismaMock.gasto.groupBy.mockResolvedValue([]);
+      prismaMock.categoria.findMany.mockResolvedValue([]);
+
+      const resumen = await service.getResumen(5, {
+        rango: 'MONTH',
+        desde: '2026-09-01',
+        hasta: '2026-09-30',
+      });
+
+      const where = prismaMock.gasto.groupBy.mock.calls[0][0].where;
+      expect(where.fecha.gte).toEqual(new Date('2026-09-01T00:00:00.000Z'));
+      expect(where.fecha.lte).toEqual(new Date('2026-09-30T23:59:59.999Z'));
+      expect(resumen.periodo.rango).toBeNull();
+    });
+
+    it('rechaza un rango de fechas invertido', async () => {
+      await expect(
+        service.getResumen(5, { desde: '2026-10-31', hasta: '2026-10-01' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 });

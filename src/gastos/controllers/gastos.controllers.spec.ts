@@ -88,12 +88,13 @@ describe('Controladores de gastos', () => {
     expect(serviceMock.getResumen).toHaveBeenCalledWith(9, { mes: 10 });
   });
 
-  it('delega el resumen del bot por telegramId', async () => {
+  it('delega el resumen del bot con su filtro de fechas', async () => {
     serviceMock.getResumen.mockResolvedValue({ totalGeneral: 0 });
+    const filtro = { telegramId: '123', rango: '15_DAYS' as const };
 
-    await bot.getResumenBot('123');
+    await bot.getResumenBot(filtro);
 
-    expect(serviceMock.getResumen).toHaveBeenCalledWith('123', {});
+    expect(serviceMock.getResumen).toHaveBeenCalledWith('123', filtro);
   });
 
   it('delega la actualización parcial', async () => {
