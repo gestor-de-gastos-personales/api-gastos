@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateGastoDto } from '../dto/update-gasto.dto.js';
 import { FilterGastosDto } from '../dto/filter-gasto.dto.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { FilterResumenDto } from '../dto/filter-resumen.dto.js';
-import type { GastoInput } from '../gastos.types.js';
+import type {
+  GastoInput,
+  OpcionesResumen,
+  PeriodoResumen,
+  RangoResumen,
+} from '../gastos.types.js';
 
 /** Filtro mínimo que consumen las consultas de gastos. */
 interface GastoWhere {
@@ -12,17 +20,135 @@ interface GastoWhere {
   categoriaId?: number;
 }
 
+interface GrupoCategoria {
+  categoriaId: number;
+  _sum: { monto: unknown } | null;
+}
+
 const noEncontrado = (mensaje: string) => new NotFoundException(mensaje);
 
 @Injectable()
 export class GastosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Convierte 'DD-MM-YYYY' a Date de JS en formato UTC/ISO
+  /**
+   * Convierte fechas ISO (`YYYY-MM-DD`) o el formato legado
+   * (`DD-MM-YYYY`) a un Date en UTC.
+   */
   private parseFechaArg(fechaStr: string, esFinDeDia = false): Date {
-    const [dia, mes, anio] = fechaStr.split('-');
     const hora = esFinDeDia ? '23:59:59.999Z' : '00:00:00.000Z';
+    const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fechaStr);
+
+    if (iso) {
+      return new Date(`${iso[1]}-${iso[2]}-${iso[3]}T${hora}`);
+    }
+
+    const [dia, mes, anio] = fechaStr.split('-');
     return new Date(`${anio}-${mes}-${dia}T${hora}`);
+  }
+
+  /** Convierte una fecha ISO completa o `YYYY-MM-DD`. */
+  private parseFechaISO(valor: string, esFinDeDia: boolean): Date {
+    const fecha = new Date(valor);
+
+    if (Number.isNaN(fecha.getTime())) {
+      throw new BadRequestException(`La fecha '${valor}' no es válida`);
+    }
+
+    if (esFinDeDia && /^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+      fecha.setUTCHours(23, 59, 59, 999);
+    }
+
+    return fecha;
+  }
+
+  private resolverPeriodo(opciones: OpcionesResumen): PeriodoResumen {
+    if (opciones.desde || opciones.hasta) {
+      return this.periodoExplicito(opciones);
+    }
+
+    if (opciones.rango) {
+      return this.periodoPorRango(opciones.rango);
+    }
+
+    return this.periodoPorMes(opciones);
+  }
+
+  private periodoExplicito(opciones: OpcionesResumen): PeriodoResumen {
+    const fechaInicio = opciones.desde
+      ? this.parseFechaISO(opciones.desde, false)
+      : new Date(Date.UTC(2000, 0, 1));
+    const fechaFin = opciones.hasta
+      ? this.parseFechaISO(opciones.hasta, true)
+      : new Date();
+
+    if (fechaInicio > fechaFin) {
+      throw new BadRequestException(
+        'La fecha desde no puede ser posterior a la fecha hasta',
+      );
+    }
+
+    return {
+      mes: null,
+      anio: fechaFin.getUTCFullYear(),
+      rango: null,
+      fechaInicio,
+      fechaFin,
+    };
+  }
+
+  private periodoPorRango(rango: RangoResumen): PeriodoResumen {
+    const ahora = new Date();
+
+    return {
+      mes: null,
+      anio: ahora.getUTCFullYear(),
+      rango,
+      fechaInicio: this.inicioDelRango(rango, ahora),
+      fechaFin: ahora,
+    };
+  }
+
+  /** Calcula el inicio de cada rango soportado sin anidar condicionales. */
+  private inicioDelRango(rango: RangoResumen, ahora: Date): Date {
+    const anio = ahora.getUTCFullYear();
+    const mes = ahora.getUTCMonth();
+    const dia = ahora.getUTCDate();
+    const diasDesdeLunes = (ahora.getUTCDay() + 6) % 7;
+
+    const inicios: Record<RangoResumen, Date> = {
+      WEEK: new Date(Date.UTC(anio, mes, dia - diasDesdeLunes)),
+      '15_DAYS': new Date(Date.UTC(anio, mes, dia - 14)),
+      MONTH: new Date(Date.UTC(anio, mes, 1)),
+      '2_MONTHS': new Date(Date.UTC(anio, mes - 2, dia)),
+      YEAR: new Date(Date.UTC(anio, 0, 1)),
+    };
+
+    return inicios[rango];
+  }
+
+  private periodoPorMes(opciones: OpcionesResumen): PeriodoResumen {
+    const ahora = new Date();
+    const anio = opciones.anio ? Number(opciones.anio) : ahora.getFullYear();
+    const mes = opciones.mes ? Number(opciones.mes) : undefined;
+
+    if (mes) {
+      return {
+        mes,
+        anio,
+        rango: null,
+        fechaInicio: new Date(Date.UTC(anio, mes - 1, 1)),
+        fechaFin: new Date(Date.UTC(anio, mes, 0, 23, 59, 59, 999)),
+      };
+    }
+
+    return {
+      mes: null,
+      anio,
+      rango: null,
+      fechaInicio: new Date(Date.UTC(anio, 0, 1)),
+      fechaFin: new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999)),
+    };
   }
 
   // Resuelve el ID interno del usuario a partir de un ID numérico o telegramId
@@ -88,53 +214,46 @@ export class GastosService {
     );
   }
 
-  async create(
-    usuarioIdentifier: number | string,
-    createGastoDto: GastoInput,
-  ) {
+  private resolverMonto(dto: GastoInput): number {
+    return Number(dto.valor ?? dto.monto ?? dto.total);
+  }
+
+  private resolverDescripcion(dto: GastoInput): string {
+    const descripcion = dto.descripcion ?? dto.description;
+    const comercio = dto.comercio ?? dto.merchant;
+    return descripcion || comercio || '';
+  }
+
+  private resolverFecha(fecha?: string): Date {
+    return fecha ? this.parseFechaArg(fecha) : new Date();
+  }
+
+  async create(usuarioIdentifier: number | string, dto: GastoInput) {
     const usuarioId = await this.getOrCreateUsuarioId(
       usuarioIdentifier,
-      createGastoDto.telegramId,
+      dto.telegramId,
     );
-
     const categoriaId = await this.resolverCategoriaId(
-      createGastoDto.categoria ?? createGastoDto.category,
+      dto.categoria ?? dto.category,
     );
-
-    const fecha = createGastoDto.fecha
-      ? this.parseFechaArg(createGastoDto.fecha)
-      : new Date();
-
-    const monto = Number(
-      createGastoDto.valor ?? createGastoDto.monto ?? createGastoDto.total,
-    );
-
-    const comercioStr = createGastoDto.comercio ?? createGastoDto.merchant;
-    const descStr = createGastoDto.descripcion ?? createGastoDto.description;
-    const descripcion = descStr || comercioStr || '';
 
     return this.prisma.gasto.create({
       data: {
-        descripcion,
-        monto,
-        fecha,
-        categoria: {
-          connect: { id: categoriaId },
-        },
-        usuario: {
-          connect: { id: usuarioId },
-        },
+        descripcion: this.resolverDescripcion(dto),
+        monto: this.resolverMonto(dto),
+        fecha: this.resolverFecha(dto.fecha),
+        categoria: { connect: { id: categoriaId } },
+        usuario: { connect: { id: usuarioId } },
       },
     });
   }
 
-  async findAll(usuarioId: number, filterDto?: FilterGastosDto) {
-    const { page = 1, limit = 10, fechaInicio, fechaFin, categoriaId } =
-      filterDto || {};
-
-    const where: GastoWhere = {
-      usuarioId,
-    };
+  private construirWhere(
+    usuarioId: number,
+    filtro?: FilterGastosDto,
+  ): GastoWhere {
+    const { fechaInicio, fechaFin, categoriaId } = filtro || {};
+    const where: GastoWhere = { usuarioId };
 
     if (fechaInicio || fechaFin) {
       where.fecha = {
@@ -147,23 +266,38 @@ export class GastosService {
       where.categoriaId = Number(categoriaId);
     }
 
+    return where;
+  }
+
+  /** Agrega la fecha legible que consumen los listados. */
+  private formatearFecha(fecha: Date): string {
+    const [anio, mes, dia] = fecha.toISOString().slice(0, 10).split('-');
+    return `${dia}-${mes}-${anio}`;
+  }
+
+  private conFechaFormateada<T extends { fecha: Date }>(gasto: T) {
+    return { ...gasto, fechaFormateada: this.formatearFecha(gasto.fecha) };
+  }
+
+  async findAll(usuarioId: number, filtro?: FilterGastosDto) {
+    const { page = 1, limit = 10 } = filtro || {};
     const pageNum = Number(page);
     const limitNum = Number(limit);
-    const skip = (pageNum - 1) * limitNum;
+    const where = this.construirWhere(usuarioId, filtro);
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.gasto.findMany({
         where,
         include: { categoria: true },
         orderBy: { fecha: 'desc' },
-        skip,
+        skip: (pageNum - 1) * limitNum,
         take: limitNum,
       }),
       this.prisma.gasto.count({ where }),
     ]);
 
     return {
-      data,
+      data: data.map((gasto) => this.conFechaFormateada(gasto)),
       meta: {
         total,
         page: pageNum,
@@ -174,14 +308,14 @@ export class GastosService {
   }
 
   async findOne(usuarioId: number, id: number) {
+    const gasto = await this.buscarGasto(usuarioId, id);
+    return this.conFechaFormateada(gasto);
+  }
+
+  private async buscarGasto(usuarioId: number, id: number) {
     const gasto = await this.prisma.gasto.findFirst({
-      where: {
-        id,
-        usuarioId,
-      },
-      include: {
-        categoria: true,
-      },
+      where: { id, usuarioId },
+      include: { categoria: true },
     });
 
     if (!gasto) {
@@ -192,7 +326,7 @@ export class GastosService {
   }
 
   async update(usuarioId: number, id: number, updateGastoDto: UpdateGastoDto) {
-    await this.findOne(usuarioId, id);
+    await this.buscarGasto(usuarioId, id);
 
     const categoriaId =
       updateGastoDto.categoria !== undefined
@@ -219,87 +353,77 @@ export class GastosService {
   }
 
   async remove(usuarioId: number, id: number) {
-    await this.findOne(usuarioId, id);
+    await this.buscarGasto(usuarioId, id);
 
     return await this.prisma.gasto.delete({
       where: { id },
     });
   }
 
-  async getResumen(
-    usuarioIdentifier: number | string,
-    filterDto?: FilterResumenDto,
-  ) {
-    const usuarioId = await this.getOrCreateUsuarioId(usuarioIdentifier);
-
-    const ahora = new Date();
-    const anio = filterDto?.anio ? Number(filterDto.anio) : ahora.getFullYear();
-    const mes = filterDto?.mes ? Number(filterDto.mes) : undefined;
-
-    let fechaInicio: Date;
-    let fechaFin: Date;
-
-    if (mes) {
-      fechaInicio = new Date(Date.UTC(anio, mes - 1, 1, 0, 0, 0, 0));
-      fechaFin = new Date(Date.UTC(anio, mes, 0, 23, 59, 59, 999));
-    } else {
-      fechaInicio = new Date(Date.UTC(anio, 0, 1, 0, 0, 0, 0));
-      fechaFin = new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999));
-    }
-
-    const where: GastoWhere = {
-      usuarioId,
-      fecha: {
-        gte: fechaInicio,
-        lte: fechaFin,
-      },
-    };
-
-    const agrupado = await this.prisma.gasto.groupBy({
-      by: ['categoriaId'],
-      _sum: {
-        monto: true,
-      },
-      where,
-    });
-
-    const idsCategorias = agrupado.map((item) => item.categoriaId);
+  private async obtenerNombresCategorias(ids: number[]) {
     const categorias = await this.prisma.categoria.findMany({
-      where: { id: { in: idsCategorias } },
+      where: { id: { in: ids } },
     });
+    return new Map(categorias.map((categoria) => [categoria.id, categoria.nombre]));
+  }
 
-    const mapaCategorias = new Map(categorias.map((c) => [c.id, c.nombre]));
-
-    const totalGeneral = agrupado.reduce(
-      (acum, item) => acum + Number(item._sum?.monto || 0),
+  private sumarTotales(grupos: GrupoCategoria[]): number {
+    return grupos.reduce(
+      (acumulado, grupo) => acumulado + Number(grupo._sum?.monto || 0),
       0,
     );
+  }
 
-    const porCategoria = agrupado.map((item) => {
-      const total = Number(item._sum?.monto || 0);
-      const porcentaje =
-        totalGeneral > 0
-          ? Number(((total / totalGeneral) * 100).toFixed(2))
-          : 0;
+  private calcularPorcentaje(total: number, totalGeneral: number): number {
+    if (totalGeneral <= 0) return 0;
+    return Number(((total / totalGeneral) * 100).toFixed(2));
+  }
 
-      return {
-        categoriaId: item.categoriaId,
-        categoriaNombre:
-          mapaCategorias.get(item.categoriaId) || 'Sin categoría',
-        total,
-        porcentaje,
-      };
-    });
+  private formatearGrupo(
+    grupo: GrupoCategoria,
+    nombres: Map<number, string>,
+    totalGeneral: number,
+  ) {
+    const total = Number(grupo._sum?.monto || 0);
 
     return {
-      periodo: {
-        mes: mes ?? null,
-        anio,
-        fechaInicio,
-        fechaFin,
-      },
-      totalGeneral,
-      porCategoria,
+      categoriaId: grupo.categoriaId,
+      categoriaNombre: nombres.get(grupo.categoriaId) || 'Sin categoría',
+      total,
+      porcentaje: this.calcularPorcentaje(total, totalGeneral),
     };
+  }
+
+  private async agruparPorCategoria(where: GastoWhere) {
+    const agrupado = await this.prisma.gasto.groupBy({
+      by: ['categoriaId'],
+      _sum: { monto: true },
+      where,
+    });
+    const nombres = await this.obtenerNombresCategorias(
+      agrupado.map((item) => item.categoriaId),
+    );
+    const totalGeneral = this.sumarTotales(agrupado);
+
+    return {
+      totalGeneral,
+      porCategoria: agrupado.map((item) =>
+        this.formatearGrupo(item, nombres, totalGeneral),
+      ),
+    };
+  }
+
+  async getResumen(
+    usuarioIdentifier: number | string,
+    filtro: OpcionesResumen = {},
+  ) {
+    const usuarioId = await this.getOrCreateUsuarioId(usuarioIdentifier);
+    const periodo = this.resolverPeriodo(filtro);
+    const agrupado = await this.agruparPorCategoria({
+      usuarioId,
+      fecha: { gte: periodo.fechaInicio, lte: periodo.fechaFin },
+    });
+
+    return { periodo, ...agrupado };
   }
 }
