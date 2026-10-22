@@ -4,6 +4,7 @@ import { CreateGastoDto } from './dto/create-gasto.dto.js';
 import { UpdateGastoDto } from './dto/update-gasto.dto.js';
 import { FilterGastosDto } from './dto/filter-gasto.dto.js';
 import { FilterResumenDto } from './dto/filter-resumen.dto.js';
+import { CreateGastoBotDto } from './dto/create-gasto-bot.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { GetUser } from '../auth/decorators/get-user.decorator.js';
 
@@ -13,14 +14,14 @@ export class GastosController {
 
   // 🤖 Endpoint libre para el Bot de Telegram
   @Post('bot')
-  createFromBot(@Body() body: any) {
-    return this.gastosService.create(body.usuarioId || body.telegramId, body);
+  createFromBot(@Body() body: CreateGastoBotDto) {
+    return this.gastosService.create(body.usuarioId ?? body.telegramId, body);
   }
 
   // 🤖 Endpoint de resumen para el Bot de Telegram
   @Get('resumen/bot')
   getResumenBot(@Query('telegramId') telegramId: string) {
-    return this.gastosService.getResumen(telegramId as any, {});
+    return this.gastosService.getResumen(telegramId, {});
   }
 
   // 🔒 Endpoints protegidos con JWT para Frontend/App

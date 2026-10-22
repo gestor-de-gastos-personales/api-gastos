@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateGastoDto } from './dto/create-gasto.dto.js';
 import { UpdateGastoDto } from './dto/update-gasto.dto.js';
 import { FilterGastosDto } from './dto/filter-gasto.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { FilterResumenDto } from './dto/filter-resumen.dto.js';
 import { Prisma } from '@prisma/client';
+import type { GastoInput, UsuarioIdentificador } from './gastos.types.js';
 
 @Injectable()
 export class GastosService {
@@ -18,7 +18,10 @@ export class GastosService {
   }
 
   // Resuelve el ID interno del usuario a partir de un ID numérico o telegramId
-  private async getOrCreateUsuarioId(usuarioIdentifier: any, dtoTelegramId?: string): Promise<number> {
+  private async getOrCreateUsuarioId(
+    usuarioIdentifier: UsuarioIdentificador,
+    dtoTelegramId?: string,
+  ): Promise<number> {
     const tgId = dtoTelegramId || (typeof usuarioIdentifier === 'string' ? usuarioIdentifier : null);
 
     if (tgId) {
@@ -40,7 +43,10 @@ export class GastosService {
     return Number(usuarioIdentifier);
   }
 
-  async create(usuarioIdentifier: any, createGastoDto: any) {
+  async create(
+    usuarioIdentifier: UsuarioIdentificador,
+    createGastoDto: GastoInput,
+  ) {
     // 1. Obtener/Crear el usuario correspondiente
     const usuarioId = await this.getOrCreateUsuarioId(
       usuarioIdentifier,
@@ -203,10 +209,16 @@ export class GastosService {
     return await this.prisma.gasto.update({
       where: { id },
       data: {
-        descripcion: updateGastoDto.descripcion ?? '',
-        monto: updateGastoDto.valor,
-        ...(categoriaId && { categoria: { connect: { id: categoriaId } } }),
-        ...(updateGastoDto.fecha && {
+        ...(updateGastoDto.descripcion !== undefined && {
+          descripcion: updateGastoDto.descripcion,
+        }),
+        ...(updateGastoDto.valor !== undefined && {
+          monto: updateGastoDto.valor,
+        }),
+        ...(categoriaId !== undefined && {
+          categoria: { connect: { id: categoriaId } },
+        }),
+        ...(updateGastoDto.fecha !== undefined && {
           fecha: this.parseFechaArg(updateGastoDto.fecha),
         }),
       },
@@ -221,7 +233,10 @@ export class GastosService {
     });
   }
 
-  async getResumen(usuarioIdentifier: any, filterDto?: FilterResumenDto) {
+  async getResumen(
+    usuarioIdentifier: UsuarioIdentificador,
+    filterDto?: FilterResumenDto,
+  ) {
     const usuarioId = await this.getOrCreateUsuarioId(usuarioIdentifier);
 
     const ahora = new Date();

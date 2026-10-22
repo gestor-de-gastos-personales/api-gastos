@@ -7,6 +7,8 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { VincularTelegramDto } from './dto/vincular-telegram.dto.js';
+import { RegisterTelegramDto } from './dto/register-telegram.dto.js';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -38,7 +40,7 @@ export class AuthService {
     });
 
     // 3. Omitir el hash del password en la respuesta
-    const { password, ...result } = usuario;
+    const { password: _password, ...result } = usuario;
     return result;
   }
 
@@ -68,11 +70,7 @@ export class AuthService {
   }
 
   // Vincular una cuenta Web existente con un telegramId
-  async vincularTelegram(dto: {
-    email: string;
-    password: string;
-    telegramId: string;
-  }) {
+  async vincularTelegram(dto: VincularTelegramDto) {
     const usuario = await this.prisma.usuario.findUnique({
       where: { email: dto.email },
     });
@@ -105,17 +103,12 @@ export class AuthService {
       data: { telegramId: String(dto.telegramId) },
     });
 
-    const { password, ...result } = usuarioActualizado;
+    const { password: _password, ...result } = usuarioActualizado;
     return result;
   }
 
   // Registrar un nuevo usuario completo (Web + Telegram) desde el Bot
-  async registerTelegram(dto: {
-    email: string;
-    password: string;
-    nombre?: string;
-    telegramId: string;
-  }) {
+  async registerTelegram(dto: RegisterTelegramDto) {
     const existingEmail = await this.prisma.usuario.findUnique({
       where: { email: dto.email },
     });
@@ -145,7 +138,7 @@ export class AuthService {
       },
     });
 
-    const { password, ...result } = usuario;
+    const { password: _password, ...result } = usuario;
     return result;
   }
 }
