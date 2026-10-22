@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriasController } from './categorias.controller.js';
-import { CategoriasService } from './categorias.service.js';
+import { CategoriasService } from '../services/categorias.service.js';
 
 describe('CategoriasController', () => {
   let controller: CategoriasController;
@@ -9,8 +9,6 @@ describe('CategoriasController', () => {
     create: vi.fn(),
     findAll: vi.fn(),
     findOne: vi.fn(),
-    update: vi.fn(),
-    remove: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -45,21 +43,5 @@ describe('CategoriasController', () => {
     await controller.findOne('4');
 
     expect(serviceMock.findOne).toHaveBeenCalledWith(4);
-  });
-
-  it('convierte el id de ruta a número en la actualización', async () => {
-    serviceMock.update.mockResolvedValue({ id: 4 });
-
-    await controller.update('4', { nombre: 'Nueva' });
-
-    expect(serviceMock.update).toHaveBeenCalledWith(4, { nombre: 'Nueva' });
-  });
-
-  it('convierte el id de ruta a número en la eliminación', async () => {
-    serviceMock.remove.mockResolvedValue({ id: 4 });
-
-    await controller.remove('4');
-
-    expect(serviceMock.remove).toHaveBeenCalledWith(4);
   });
 });

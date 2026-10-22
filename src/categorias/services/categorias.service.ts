@@ -1,11 +1,30 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { CreateCategoriaDto } from './dto/create-categoria.dto.js';
-import { UpdateCategoriaDto } from './dto/update-categoria.dto.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { CreateCategoriaDto } from '../dto/create-categoria.dto.js';
+import { UpdateCategoriaDto } from '../dto/update-categoria.dto.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+
+type Categoria = { id: number; nombre: string; default: boolean };
 
 @Injectable()
 export class CategoriasService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private noEncontrada(id: number) {
+    return new NotFoundException(`Categoría con ID #${id} no encontrada`);
+  }
+
+  /** Las categorías del sistema no pueden editarse ni eliminarse. */
+  private asegurarEditable(categoria: Categoria) {
+    if (categoria.default) {
+      throw new ForbiddenException(
+        'No se pueden modificar las categorías por defecto del sistema',
+      );
+    }
+  }
 
   async create(createCategoriaDto: CreateCategoriaDto) {
     return this.prisma.categoria.create({
@@ -25,7 +44,7 @@ export class CategoriasService {
     });
 
     if (!categoria) {
-      throw new NotFoundException(`Categoría con ID #${id} no encontrada`);
+      throw this.noEncontrada(id);
     }
 
     return categoria;
@@ -33,10 +52,7 @@ export class CategoriasService {
 
   async update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
     const categoria = await this.findOne(id);
-
-    if (categoria.default) {
-      throw new ForbiddenException('No se pueden modificar las categorías por defecto del sistema');
-    }
+    this.asegurarEditable(categoria);
 
     return await this.prisma.categoria.update({
       where: { id },
@@ -46,10 +62,7 @@ export class CategoriasService {
 
   async remove(id: number) {
     const categoria = await this.findOne(id);
-
-    if (categoria.default) {
-      throw new ForbiddenException('No se pueden eliminar las categorías por defecto del sistema');
-    }
+    this.asegurarEditable(categoria);
 
     return await this.prisma.categoria.delete({
       where: { id },
