@@ -1,15 +1,18 @@
-import { IsOptional, Matches, IsInt, Min } from 'class-validator';
+import { IsOptional, Matches, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PaginacionDto } from '../../common/dto/paginacion.dto.js';
 
-export class FilterGastosDto {
+const FORMATO_FECHA = /^([0-2][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+
+export class FilterGastosDto extends PaginacionDto {
   @IsOptional()
-  @Matches(/^([0-2][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/, {
+  @Matches(FORMATO_FECHA, {
     message: 'fechaInicio debe tener el formato DD-MM-YYYY (ej: 01-10-2026)',
   })
   fechaInicio?: string;
 
   @IsOptional()
-  @Matches(/^([0-2][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/, {
+  @Matches(FORMATO_FECHA, {
     message: 'fechaFin debe tener el formato DD-MM-YYYY (ej: 31-10-2026)',
   })
   fechaFin?: string;
@@ -18,16 +21,4 @@ export class FilterGastosDto {
   @Type(() => Number)
   @IsInt({ message: 'categoriaId debe ser un número entero' })
   categoriaId?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number = 10;
 }
