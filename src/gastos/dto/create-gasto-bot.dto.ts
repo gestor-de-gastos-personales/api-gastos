@@ -1,4 +1,10 @@
-import { Allow, IsNotEmpty, IsString } from 'class-validator';
+import {
+  Allow,
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 /**
  * Payload que envía el bot de Telegram a POST /gastos/bot.
@@ -22,6 +28,7 @@ export class CreateGastoBotDto {
   @Allow()
   descripcion?: string;
 
-  @Allow()
+  @IsOptional()
+  @IsDateString({}, { message: 'fecha debe ser una fecha ISO válida' })
   fecha?: string;
 }
