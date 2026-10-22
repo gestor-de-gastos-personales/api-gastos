@@ -1,10 +1,14 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
+import { AppModule } from './app.module.js';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Usa el logger pino de nestjs-pino también para los logs internos de Nest.
+  app.useLogger(app.get(Logger));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -19,5 +23,10 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   await app.listen(3000);
+
+  const logger = app.get(Logger);
+  const url = await app.getUrl();
+  logger.log(`api-gastos escuchando en ${url}`, 'Bootstrap');
 }
-bootstrap();
+
+void bootstrap();

@@ -34,16 +34,16 @@ const categoriasPorDefecto = [
     });
   }
 
-  console.log('Seed ejecutado: Categorías por defecto sincronizadas.');
+  process.stdout.write('Seed ejecutado: Categorías por defecto sincronizadas.\n');
 
-  await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"Categoria"', 'id'), coalesce(max(id), 1)) FROM "Categoria";`
-  );
+  await prisma.$executeRaw`
+    SELECT setval(pg_get_serial_sequence('"Categoria"', 'id'), coalesce(max(id), 1)) FROM "Categoria";
+  `;
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    process.stderr.write(`Error al ejecutar el seed: ${String(e)}\n`);
     process.exit(1);
   })
   .finally(async () => {
