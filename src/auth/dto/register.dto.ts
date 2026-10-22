@@ -1,13 +1,7 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { CredencialesDto } from './credenciales.dto.js';
 
-export class RegisterDto {
-  @IsEmail({}, { message: 'El email debe tener un formato válido' })
-  email: string;
-
-  @IsString()
-  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
-  password: string;
-
+export class RegisterDto extends CredencialesDto {
   @IsString()
   @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
   nombre: string;

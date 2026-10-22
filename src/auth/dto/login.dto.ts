@@ -1,10 +1,3 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { CredencialesDto } from './credenciales.dto.js';
 
-export class LoginDto {
-  @IsEmail({}, { message: 'El email debe tener un formato válido' })
-  email: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'La contraseña es requerida' })
-  password: string;
-}
+export class LoginDto extends CredencialesDto {}

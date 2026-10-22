@@ -1,13 +1,7 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { CredencialesDto } from './credenciales.dto.js';
 
-export class VincularTelegramDto {
-  @IsEmail({}, { message: 'El email debe tener un formato válido' })
-  email: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'La contraseña es requerida' })
-  password: string;
-
+export class VincularTelegramDto extends CredencialesDto {
   @IsString()
   @IsNotEmpty({ message: 'El telegramId es requerido' })
   telegramId: string;
