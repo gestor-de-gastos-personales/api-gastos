@@ -5,6 +5,9 @@ import {
 } from '@nestjs/common';
 import { UpdateGastoDto } from '../dto/update-gasto.dto.js';
 import { FilterGastosDto } from '../dto/filter-gasto.dto.js';
+import { CreateGastoRecurrenteDto } from '../dto/create-gasto-recurrente.dto.js';
+import { UpdateGastoRecurrenteDto } from '../dto/update-gasto-recurrente.dto.js';
+import { FilterUltimoGastoDto } from '../dto/filter-ultimo-gasto.dto.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type {
   GastoInput,
@@ -360,11 +363,234 @@ export class GastosService {
     });
   }
 
+  async createRecurrente(dto: CreateGastoRecurrenteDto) {
+    const usuarioId = await this.getOrCreateUsuarioId(
+      dto.usuarioId,
+      dto.telegramId,
+    );
+    const categoriaId = dto.categoriaId
+      ? dto.categoriaId
+      : await this.resolverCategoriaId(dto.categoria);
+
+    const proximaEjecucion = this.calcularProximaEjecucion(
+      dto.frecuencia,
+      dto.diaMes,
+      dto.diaSemana,
+    );
+
+    return this.prisma.gastoRecurrente.create({
+      data: {
+        usuarioId,
+        monto: dto.monto,
+        comercio: dto.comercio ?? null,
+        categoriaId,
+        descripcion: dto.descripcion,
+        frecuencia: dto.frecuencia,
+        diaSemana: dto.diaSemana ?? null,
+        diaMes: dto.diaMes ?? null,
+        activo: dto.activo ?? true,
+        proximaEjecucion,
+      },
+      include: { categoria: true },
+    });
+  }
+
+  private calcularProximaEjecucion(
+    frecuencia: string,
+    diaMes?: number,
+    diaSemana?: number,
+  ): Date {
+    const ahora = new Date();
+    if (frecuencia === 'DIARIA') {
+      return new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
+    }
+    if (frecuencia === 'SEMANAL') {
+      const dias = ((diaSemana ?? ahora.getDay()) - ahora.getDay() + 7) % 7 || 7;
+      return new Date(ahora.getTime() + dias * 24 * 60 * 60 * 1000);
+    }
+    if (frecuencia === 'MENSUAL') {
+      const dia = diaMes ?? ahora.getDate();
+      const siguiente = new Date(
+        Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth() + 1, dia),
+      );
+      return siguiente;
+    }
+    const siguienteAnual = new Date(
+      Date.UTC(ahora.getUTCFullYear() + 1, ahora.getUTCMonth(), ahora.getUTCDate()),
+    );
+    return siguienteAnual;
+  }
+
+  async listRecurrentes(usuarioIdentifier: number | string, telegramId?: string) {
+    const usuarioId = await this.getOrCreateUsuarioId(
+      usuarioIdentifier,
+      telegramId,
+    );
+    return this.prisma.gastoRecurrente.findMany({
+      where: { usuarioId },
+      include: { categoria: true },
+      orderBy: { id: 'desc' },
+    });
+  }
+
+  async getRecurrentesVencidas() {
+    const ahora = new Date();
+    return this.prisma.gastoRecurrente.findMany({
+      where: { activo: true, proximaEjecucion: { lte: ahora } },
+      include: { categoria: true, usuario: true },
+    });
+  }
+
+  async updateRecurrente(
+    usuarioIdentifier: number | string,
+    id: number,
+    dto: UpdateGastoRecurrenteDto,
+    telegramId?: string,
+  ) {
+    const usuarioId = await this.getOrCreateUsuarioId(
+      usuarioIdentifier,
+      telegramId,
+    );
+    const regla = await this.prisma.gastoRecurrente.findFirst({
+      where: { id, usuarioId },
+    });
+    if (!regla) throw noEncontrado('Regla recurrente no encontrada');
+
+    let categoriaId = regla.categoriaId;
+    if (dto.categoriaId) categoriaId = dto.categoriaId;
+    else if (dto.categoria) categoriaId = await this.resolverCategoriaId(dto.categoria);
+
+    let proximaEjecucion = regla.proximaEjecucion;
+    if (dto.frecuencia || dto.diaMes !== undefined || dto.diaSemana !== undefined) {
+      proximaEjecucion = this.calcularProximaEjecucion(
+        dto.frecuencia ?? regla.frecuencia,
+        dto.diaMes ?? regla.diaMes ?? undefined,
+        dto.diaSemana ?? regla.diaSemana ?? undefined,
+      );
+    }
+
+    return this.prisma.gastoRecurrente.update({
+      where: { id },
+      data: {
+        monto: dto.monto ?? regla.monto,
+        comercio: dto.comercio ?? regla.comercio,
+        categoriaId,
+        descripcion: dto.descripcion ?? regla.descripcion,
+        frecuencia: dto.frecuencia ?? regla.frecuencia,
+        diaSemana: dto.diaSemana ?? regla.diaSemana,
+        diaMes: dto.diaMes ?? regla.diaMes,
+        activo: dto.activo ?? regla.activo,
+        proximaEjecucion,
+      },
+      include: { categoria: true },
+    });
+  }
+
+  async removeRecurrente(usuarioIdentifier: number | string, id: number, telegramId?: string) {
+    const usuarioId = await this.getOrCreateUsuarioId(
+      usuarioIdentifier,
+      telegramId,
+    );
+    const regla = await this.prisma.gastoRecurrente.findFirst({
+      where: { id, usuarioId },
+    });
+    if (!regla) throw noEncontrado('Regla recurrente no encontrada');
+    return this.prisma.gastoRecurrente.delete({ where: { id } });
+  }
+
+  async ejecutarRecurrente(reglaId: number) {
+    const regla = await this.prisma.gastoRecurrente.findUnique({
+      where: { id: reglaId },
+      include: { categoria: true, usuario: true },
+    });
+    if (!regla || !regla.activo) return null;
+
+    const gasto = await this.prisma.gasto.create({
+      data: {
+        descripcion: regla.descripcion,
+        monto: regla.monto,
+        fecha: new Date(),
+        categoriaId: regla.categoriaId,
+        usuarioId: regla.usuarioId,
+      },
+      include: { categoria: true },
+    });
+
+    const siguiente = this.calcularProximaEjecucion(
+      regla.frecuencia,
+      regla.diaMes ?? undefined,
+      regla.diaSemana ?? undefined,
+    );
+
+    await this.prisma.gastoRecurrente.update({
+      where: { id: regla.id },
+      data: { ultimaEjecucion: new Date(), proximaEjecucion: siguiente },
+    });
+
+    return gasto;
+  }
+
   private async obtenerNombresCategorias(ids: number[]) {
     const categorias = await this.prisma.categoria.findMany({
       where: { id: { in: ids } },
     });
     return new Map(categorias.map((categoria) => [categoria.id, categoria.nombre]));
+  }
+
+  async getUltimoGasto(
+    usuarioIdentifier: number | string,
+    dto: {
+      telegramId?: string;
+      comercio?: string;
+      categoria?: string;
+      desde?: string;
+    },
+  ) {
+    const usuarioId = await this.getOrCreateUsuarioId(
+      usuarioIdentifier,
+      dto.telegramId,
+    );
+
+    const where: Record<string, unknown> = { usuarioId };
+
+    if (dto.desde) {
+      where.fecha = { gte: this.parseFechaISO(dto.desde, false) };
+    }
+
+    if (dto.categoria) {
+      const categoria = await this.prisma.categoria.findFirst({
+        where: { nombre: { equals: dto.categoria, mode: 'insensitive' } },
+      });
+      if (categoria) where.categoriaId = categoria.id;
+    }
+
+    const gastos = await this.prisma.gasto.findMany({
+      where,
+      include: { categoria: true, usuario: true },
+      orderBy: { fecha: 'desc' },
+      take: 50,
+    });
+
+    let encontrado = gastos[0] ?? null;
+
+    if (dto.comercio && encontrado) {
+      const comercio = dto.comercio.toLowerCase();
+      const filtrado = gastos.find((gasto) => {
+        const descripcion = gasto.descripcion?.toLowerCase() ?? '';
+        return descripcion.includes(comercio) || descripcion.toLowerCase().includes(comercio);
+      });
+      if (filtrado) encontrado = filtrado;
+    }
+
+    if (!encontrado) {
+      throw noEncontrado('No se encontró ningún gasto para esos filtros');
+    }
+
+    return encontrado;
+  }
+
+  async getGastoById(usuarioId: number, id: number) {
+    return this.buscarGasto(usuarioId, id);
   }
 
   private sumarTotales(grupos: GrupoCategoria[]): number {
