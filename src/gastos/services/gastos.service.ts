@@ -524,10 +524,53 @@ export class GastosService {
 
     await this.prisma.gastoRecurrente.update({
       where: { id: regla.id },
-      data: { ultimaEjecucion: new Date(), proximaEjecucion: siguiente },
+      data: {
+        ultimaEjecucion: new Date(),
+        proximaEjecucion: siguiente,
+        notificado: false,
+      },
     });
 
     return gasto;
+  }
+
+  /** Ejecuta todas las reglas vencidas; lo usa el scheduler de la API. */
+  async ejecutarVencidas() {
+    const vencidas = await this.getRecurrentesVencidas();
+    const ejecutadas = [];
+
+    for (const regla of vencidas) {
+      const gasto = await this.ejecutarRecurrente(regla.id);
+      if (gasto) ejecutadas.push(gasto);
+    }
+
+    return ejecutadas;
+  }
+
+  /**
+   * Devuelve las ejecuciones pendientes de notificar y las marca como
+   * notificadas, para que el bot solo envíe el aviso una única vez.
+   */
+  async obtenerYMarcarNotificaciones() {
+    const pendientes = await this.prisma.gastoRecurrente.findMany({
+      where: { notificado: false, ultimaEjecucion: { not: null } },
+      include: { categoria: true, usuario: true },
+    });
+
+    if (pendientes.length === 0) return [];
+
+    await this.prisma.gastoRecurrente.updateMany({
+      where: { id: { in: pendientes.map((regla) => regla.id) } },
+      data: { notificado: true },
+    });
+
+    return pendientes.map((regla) => ({
+      reglaId: regla.id,
+      telegramId: regla.usuario.telegramId,
+      descripcion: regla.descripcion,
+      monto: Number(regla.monto),
+      fecha: regla.ultimaEjecucion,
+    }));
   }
 
   private async obtenerNombresCategorias(ids: number[]) {

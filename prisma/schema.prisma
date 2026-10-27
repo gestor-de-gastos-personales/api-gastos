@@ -65,6 +65,7 @@ model GastoRecurrente {
   activo          Boolean   @default(true)
   ultimaEjecucion DateTime?
   proximaEjecucion DateTime
+  notificado      Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
