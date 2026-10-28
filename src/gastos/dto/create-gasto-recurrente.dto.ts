@@ -30,10 +30,10 @@ export class CreateGastoRecurrenteDto {
   @IsString()
   comercio?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
-  categoriaId!: number;
+  categoriaId?: number;
 
   @IsOptional()
   @IsString()
