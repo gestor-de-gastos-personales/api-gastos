@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { GastosModule } from './gastos/gastos.module.js';
@@ -11,6 +12,7 @@ import { crearOpcionesLogger } from './common/logger/opciones-logger.js';
 @Module({
   imports: [
     LoggerModule.forRoot(crearOpcionesLogger()),
+    ScheduleModule.forRoot(),
     GastosModule,
     PrismaModule,
     CategoriasModule,
