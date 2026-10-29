@@ -1,6 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosService } from './gastos.service.js';
+import { GastosConsultaService } from './gastos-consulta.service.js';
+import { GastosEscrituraService } from './gastos-escritura.service.js';
+import { GastosResumenService } from './gastos-resumen.service.js';
+import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
+import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('GastosService', () => {
@@ -39,6 +44,11 @@ describe('GastosService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GastosService,
+        GastosConsultaService,
+        GastosEscrituraService,
+        GastosResumenService,
+        GastosRecurrentesService,
+        UsuariosGastosService,
         { provide: PrismaService, useValue: prismaMock },
       ],
     }).compile();
@@ -226,6 +236,7 @@ describe('GastosService', () => {
           categoria: { connect: { id: 2 } },
           fecha: new Date('2026-10-15T00:00:00.000Z'),
         },
+        include: { categoria: true },
       });
     });
 
@@ -238,6 +249,7 @@ describe('GastosService', () => {
       expect(prismaMock.gasto.update).toHaveBeenCalledWith({
         where: { id: 5 },
         data: { monto: 300 },
+        include: { categoria: true },
       });
     });
 
@@ -361,6 +373,250 @@ describe('GastosService', () => {
       await expect(
         service.getResumen(5, { desde: '2026-10-31', hasta: '2026-10-01' }),
       ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('incluye el gasto más grande del período', async () => {
+      prismaMock.gasto.groupBy.mockResolvedValue([
+        { categoriaId: 1, _sum: { monto: 750 } },
+      ]);
+      prismaMock.categoria.findMany.mockResolvedValue([
+        { id: 1, nombre: 'Alimentación' },
+      ]);
+      prismaMock.gasto.findFirst.mockResolvedValue({
+        id: 9,
+        monto: 750,
+        descripcion: 'Cena',
+        fecha: new Date('2026-10-20T00:00:00.000Z'),
+        categoria: { id: 1, nombre: 'Alimentación' },
+      });
+      prismaMock.gasto.count.mockResolvedValue(1);
+
+      const resumen = await service.getResumen(5, { mes: 10, anio: 2026 });
+
+      expect(resumen.mayorGasto).toEqual({
+        id: 9,
+        monto: 750,
+        descripcion: 'Cena',
+        fecha: new Date('2026-10-20T00:00:00.000Z'),
+        categoria: { id: 1, nombre: 'Alimentación' },
+      });
+      expect(resumen.cantidad).toBe(1);
+    });
+
+    it('devuelve mayorGasto nulo cuando el período está vacío', async () => {
+      prismaMock.gasto.groupBy.mockResolvedValue([]);
+      prismaMock.categoria.findMany.mockResolvedValue([]);
+      prismaMock.gasto.findFirst.mockResolvedValue(null);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      const resumen = await service.getResumen(5, { rango: 'TODAY' });
+
+      expect(resumen.mayorGasto).toBeNull();
+      expect(resumen.totalGeneral).toBe(0);
+    });
+
+    it('filtra el resumen por categoría resuelta por nombre', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.categoria.findFirst.mockResolvedValue({
+        id: 4,
+        nombre: 'Comida',
+      });
+      prismaMock.gasto.groupBy.mockResolvedValue([]);
+      prismaMock.categoria.findMany.mockResolvedValue([]);
+      prismaMock.gasto.findFirst.mockResolvedValue(null);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      await service.getResumen('123', { rango: 'MONTH', categoria: 'comida' });
+
+      expect(prismaMock.categoria.findFirst).toHaveBeenCalledWith({
+        where: { nombre: { equals: 'comida', mode: 'insensitive' } },
+      });
+      const where = prismaMock.gasto.groupBy.mock.calls[0][0].where;
+      expect(where.categoriaId).toBe(4);
+    });
+
+    it('devuelve un resumen vacío si la categoría no existe', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.categoria.findFirst.mockResolvedValue(null);
+      prismaMock.gasto.groupBy.mockResolvedValue([]);
+      prismaMock.categoria.findMany.mockResolvedValue([]);
+      prismaMock.gasto.findFirst.mockResolvedValue(null);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      const resumen = await service.getResumen('123', {
+        rango: 'MONTH',
+        categoria: 'inexistente',
+      });
+
+      const where = prismaMock.gasto.groupBy.mock.calls[0][0].where;
+      expect(where.categoriaId).toBe(-1);
+      expect(resumen.totalGeneral).toBe(0);
+    });
+  });
+
+  describe('getUltimos', () => {
+    it('usa 10 resultados por defecto', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      const resultado = await service.getUltimos('123');
+
+      expect(resultado.meta).toEqual({
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+      });
+      expect(prismaMock.gasto.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 10, skip: 0 }),
+      );
+    });
+
+    it('acota el límite a 50', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      const resultado = await service.getUltimos('123', { limit: 200 });
+
+      expect(resultado.meta.limit).toBe(50);
+      expect(prismaMock.gasto.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 50 }),
+      );
+    });
+
+    it('pagina con skip según la página pedida', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+      prismaMock.gasto.count.mockResolvedValue(25);
+
+      const resultado = await service.getUltimos('123', { limit: 5, page: 3 });
+
+      expect(prismaMock.gasto.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 5, skip: 10 }),
+      );
+      expect(resultado.meta.totalPages).toBe(5);
+    });
+
+    it('filtra por categoría por nombre (case-insensitive)', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.categoria.findFirst.mockResolvedValue({ id: 3 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      await service.getUltimos('123', { categoria: 'Comida' });
+
+      expect(prismaMock.categoria.findFirst).toHaveBeenCalledWith({
+        where: { nombre: { equals: 'Comida', mode: 'insensitive' } },
+      });
+      const where = prismaMock.gasto.findMany.mock.calls[0][0].where;
+      expect(where.categoriaId).toBe(3);
+    });
+
+    it('filtra por rango de fechas ISO', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+      prismaMock.gasto.count.mockResolvedValue(0);
+
+      await service.getUltimos('123', {
+        desde: '2026-10-01',
+        hasta: '2026-10-31',
+      });
+
+      const where = prismaMock.gasto.findMany.mock.calls[0][0].where;
+      expect(where.fecha.gte).toEqual(new Date('2026-10-01T00:00:00.000Z'));
+      expect(where.fecha.lte).toEqual(new Date('2026-10-31T23:59:59.999Z'));
+    });
+
+    it('devuelve lista vacía si el usuario no existe', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue(null);
+
+      const resultado = await service.getUltimos('desconocido');
+
+      expect(resultado).toEqual({
+        data: [],
+        meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
+      });
+      expect(prismaMock.gasto.findMany).not.toHaveBeenCalled();
+    });
+
+    it('agrega la fecha formateada a cada gasto', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([
+        { id: 1, fecha: new Date('2026-10-20T00:00:00.000Z') },
+      ]);
+      prismaMock.gasto.count.mockResolvedValue(1);
+
+      const resultado = await service.getUltimos('123');
+
+      expect(resultado.data[0].fechaFormateada).toBe('20-10-2026');
+    });
+  });
+
+  describe('getUltimoGasto', () => {
+    it('devuelve el gasto más reciente del usuario', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([
+        { id: 2, descripcion: 'Coto', fecha: new Date('2026-10-20T00:00:00.000Z') },
+        { id: 1, descripcion: 'Shell', fecha: new Date('2026-10-19T00:00:00.000Z') },
+      ]);
+
+      const gasto = await service.getUltimoGasto('123', {});
+
+      expect(gasto.id).toBe(2);
+    });
+
+    it('prioriza el gasto cuyo comercio coincide', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([
+        { id: 2, descripcion: 'Coto' },
+        { id: 1, descripcion: 'Shell' },
+      ]);
+
+      const gasto = await service.getUltimoGasto('123', { comercio: 'shell' });
+
+      expect(gasto.id).toBe(1);
+    });
+
+    it('lanza 404 si no hay gastos', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findMany.mockResolvedValue([]);
+
+      await expect(service.getUltimoGasto('123', {})).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+
+    it('filtra por categoría cuando existe', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.categoria.findFirst.mockResolvedValue({ id: 4 });
+      prismaMock.gasto.findMany.mockResolvedValue([{ id: 2 }]);
+
+      await service.getUltimoGasto('123', { categoria: 'Comida' });
+
+      const where = prismaMock.gasto.findMany.mock.calls[0][0].where;
+      expect(where.categoriaId).toBe(4);
+    });
+  });
+
+  describe('getGastoById', () => {
+    it('resuelve el telegramId antes de buscar', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue({ id: 7 });
+      prismaMock.gasto.findFirst.mockResolvedValue({ id: 3 });
+
+      await expect(service.getGastoById('123', 3)).resolves.toEqual({ id: 3 });
+      expect(prismaMock.gasto.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 3, usuarioId: 7 } }),
+      );
+    });
+
+    it('lanza 404 si el telegramId no está registrado', async () => {
+      prismaMock.usuario.findFirst.mockResolvedValue(null);
+
+      await expect(service.getGastoById('desconocido', 3)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });
