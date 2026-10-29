@@ -328,30 +328,47 @@ export class GastosService {
     return gasto;
   }
 
-  async update(usuarioId: number, id: number, updateGastoDto: UpdateGastoDto) {
+  async update(usuarioId: number, id: number, updateGastoDto: any) {
     await this.buscarGasto(usuarioId, id);
 
+    const categoriaInput =
+      updateGastoDto.categoria ?? updateGastoDto.categoriaId ?? updateGastoDto.category;
     const categoriaId =
-      updateGastoDto.categoria !== undefined
-        ? await this.resolverCategoriaId(updateGastoDto.categoria)
+      categoriaInput !== undefined && categoriaInput !== null
+        ? await this.resolverCategoriaId(categoriaInput)
         : undefined;
+
+    const descripcion =
+      updateGastoDto.descripcion ??
+      updateGastoDto.description ??
+      updateGastoDto.comercio ??
+      updateGastoDto.merchant;
+
+    const monto =
+      updateGastoDto.monto ??
+      updateGastoDto.valor ??
+      updateGastoDto.total ??
+      updateGastoDto.amount;
+
+    const fecha = updateGastoDto.fecha ?? updateGastoDto.date;
 
     return await this.prisma.gasto.update({
       where: { id },
       data: {
-        ...(updateGastoDto.descripcion !== undefined && {
-          descripcion: updateGastoDto.descripcion,
+        ...(descripcion !== undefined && {
+          descripcion,
         }),
-        ...(updateGastoDto.valor !== undefined && {
-          monto: updateGastoDto.valor,
+        ...(monto !== undefined && {
+          monto: Number(monto),
         }),
         ...(categoriaId !== undefined && {
           categoria: { connect: { id: categoriaId } },
         }),
-        ...(updateGastoDto.fecha !== undefined && {
-          fecha: this.parseFechaArg(updateGastoDto.fecha),
+        ...(fecha !== undefined && {
+          fecha: this.parseFechaArg(fecha),
         }),
       },
+      include: { categoria: true },
     });
   }
 
@@ -632,7 +649,8 @@ export class GastosService {
     return encontrado;
   }
 
-  async getGastoById(usuarioId: number, id: number) {
+  async getGastoById(usuarioIdOrTelegramId: number | string, id: number) {
+    const usuarioId = await this.getOrCreateUsuarioId(usuarioIdOrTelegramId);
     return this.buscarGasto(usuarioId, id);
   }
 
