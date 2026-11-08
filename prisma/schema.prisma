@@ -21,6 +21,9 @@ model Usuario {
   telegramId      String?          @unique
   gastos          Gasto[]
   gastosRecurrentes GastoRecurrente[]
+  grupos          Grupo[]
+  grupoMiembros   GrupoMiembro[]
+  presupuestos    Presupuesto[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
@@ -36,6 +39,8 @@ model Gasto {
   // Relación con Usuario
   usuarioId   Int
   usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  grupoId     Int?
+  grupo       Grupo?  @relation(fields: [grupoId], references: [id])
   
   createdAt   DateTime  @default(now())
 }
@@ -48,6 +53,43 @@ model Categoria {
   updatedAt   DateTime         @updatedAt
   gastos      Gasto[]
   gastosRecurrentes GastoRecurrente[]
+  presupuestos Presupuesto[]
+}
+
+model Grupo {
+  id              Int              @id @default(autoincrement())
+  nombre          String
+  codigoInvitacion String         @unique
+  usuarioId       Int
+  usuario         Usuario         @relation(fields: [usuarioId], references: [id])
+  miembros        GrupoMiembro[]
+  gastos          Gasto[]
+  createdAt       DateTime         @default(now())
+}
+
+model GrupoMiembro {
+  id        Int     @id @default(autoincrement())
+  grupoId   Int
+  grupo     Grupo   @relation(fields: [grupoId], references: [id])
+  usuarioId Int
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  rol       String  @default("miembro")
+  joinedAt  DateTime @default(now())
+  @@unique([grupoId, usuarioId])
+}
+
+model Presupuesto {
+  id           Int    @id @default(autoincrement())
+  usuarioId    Int
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
+  categoriaId  Int
+  categoria    Categoria @relation(fields: [categoriaId], references: [id])
+  monto        Decimal
+  mes          Int
+  anio         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@unique([usuarioId, categoriaId, mes, anio])
 }
 
 model GastoRecurrente {
