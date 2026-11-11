@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosService } from './gastos.service.js';
+import { GastosDeps } from './gastos-deps.js';
 import { GastosConsultaService } from './gastos-consulta.service.js';
 import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
@@ -44,6 +45,7 @@ describe('GastosService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GastosService,
+        GastosDeps,
         GastosConsultaService,
         GastosEscrituraService,
         GastosResumenService,

@@ -1,13 +1,11 @@
-import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
-  Max,
   Min,
 } from 'class-validator';
+import { entero, rango } from '../../common/validacion.js';
 
 /**
  * Filtro de `GET /gastos/ultimos`.
@@ -25,28 +23,25 @@ export class FilterUltimosDto {
   usuarioId?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'limit debe ser un número entero' })
-  @Min(1, { message: 'limit debe ser mayor o igual a 1' })
-  @Max(50, { message: 'limit no puede superar 50' })
+  @entero()
+  @rango(1, 50)
   limit?: number = 10;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'page debe ser un número entero' })
+  @entero()
   @Min(1, { message: 'page debe ser mayor o igual a 1' })
   page?: number = 1;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'La categoría no puede estar vacía' })
+  @IsNotEmpty({ message: 'la categoría no puede estar vacía' })
   categoria?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'desde debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'desde debe ser una fecha iso válida' })
   desde?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'hasta debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'hasta debe ser una fecha iso válida' })
   hasta?: string;
 }
