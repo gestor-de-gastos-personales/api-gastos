@@ -107,6 +107,20 @@ export class AuthService {
     };
   }
 
+  /** Perfil del usuario autenticado (sin contraseña) para hidratar la sesión web. */
+  async perfil(usuarioId: number) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
+
+    if (!usuario) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const { password: _password, ...result } = usuario;
+    return result;
+  }
+
   // Vincular una cuenta Web existente con un telegramId
   async vincularTelegram(dto: VincularTelegramDto) {
     const usuario = await this.autenticar(dto.email, dto.password);
