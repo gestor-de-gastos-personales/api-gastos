@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GastosConsultaService } from './gastos-consulta.service.js';
-import { GastosEscrituraService } from './gastos-escritura.service.js';
-import { GastosResumenService } from './gastos-resumen.service.js';
-import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
+import { GastosDeps } from './gastos-deps.js';
 import type { FilterGastosDto } from '../dto/filter-gasto.dto.js';
 import type { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
 import type { CreateGastoRecurrenteDto } from '../dto/create-gasto-recurrente.dto.js';
@@ -18,16 +15,11 @@ import type { GastoInput, OpcionesResumen, UpdateGastoInput } from '../gastos.ty
  */
 @Injectable()
 export class GastosService {
-  constructor(
-    private readonly consulta: GastosConsultaService,
-    private readonly escritura: GastosEscrituraService,
-    private readonly resumen: GastosResumenService,
-    private readonly recurrentes: GastosRecurrentesService,
-  ) {}
+  constructor(private readonly deps: GastosDeps) {}
 
   // --- Escritura ---
   create(usuarioIdentifier: number | string, dto: GastoInput) {
-    return this.escritura.create(usuarioIdentifier, dto);
+    return this.deps.escritura.create(usuarioIdentifier, dto);
   }
 
   update(
@@ -35,27 +27,27 @@ export class GastosService {
     id: number,
     dto: UpdateGastoInput,
   ) {
-    return this.escritura.update(usuarioIdentifier, id, dto);
+    return this.deps.escritura.update(usuarioIdentifier, id, dto);
   }
 
   remove(usuarioIdentifier: number | string, id: number) {
-    return this.escritura.remove(usuarioIdentifier, id);
+    return this.deps.escritura.remove(usuarioIdentifier, id);
   }
 
   // --- Consulta ---
   findAll(usuarioId: number, filtro?: FilterGastosDto) {
-    return this.consulta.findAll(usuarioId, filtro);
+    return this.deps.consulta.findAll(usuarioId, filtro);
   }
 
   findOne(usuarioId: number, id: number) {
-    return this.consulta.findOne(usuarioId, id);
+    return this.deps.consulta.findOne(usuarioId, id);
   }
 
   getUltimos(
     usuarioIdentifier: number | string,
     filtro: FilterUltimosDto = {},
   ) {
-    return this.consulta.getUltimos(usuarioIdentifier, filtro);
+    return this.deps.consulta.getUltimos(usuarioIdentifier, filtro);
   }
 
   getUltimoGasto(
@@ -67,11 +59,11 @@ export class GastosService {
       desde?: string;
     },
   ) {
-    return this.consulta.getUltimoGasto(usuarioIdentifier, dto);
+    return this.deps.consulta.getUltimoGasto(usuarioIdentifier, dto);
   }
 
   getGastoById(usuarioIdentifier: number | string, id: number) {
-    return this.consulta.getGastoById(usuarioIdentifier, id);
+    return this.deps.consulta.getGastoById(usuarioIdentifier, id);
   }
 
   // --- Resumen ---
@@ -79,23 +71,23 @@ export class GastosService {
     usuarioIdentifier: number | string,
     filtro: OpcionesResumen = {},
   ) {
-    return this.resumen.getResumen(usuarioIdentifier, filtro);
+    return this.deps.resumen.getResumen(usuarioIdentifier, filtro);
   }
 
   // --- Recurrentes ---
   createRecurrente(dto: CreateGastoRecurrenteDto) {
-    return this.recurrentes.createRecurrente(dto);
+    return this.deps.recurrentes.createRecurrente(dto);
   }
 
   listRecurrentes(
     usuarioIdentifier: number | string,
     telegramId?: string,
   ) {
-    return this.recurrentes.listRecurrentes(usuarioIdentifier, telegramId);
+    return this.deps.recurrentes.listRecurrentes(usuarioIdentifier, telegramId);
   }
 
   getRecurrentesVencidas() {
-    return this.recurrentes.getRecurrentesVencidas();
+    return this.deps.recurrentes.getRecurrentesVencidas();
   }
 
   updateRecurrente(
@@ -104,7 +96,7 @@ export class GastosService {
     dto: UpdateGastoRecurrenteDto,
     telegramId?: string,
   ) {
-    return this.recurrentes.updateRecurrente(
+    return this.deps.recurrentes.updateRecurrente(
       usuarioIdentifier,
       id,
       dto,
@@ -117,7 +109,7 @@ export class GastosService {
     id: number,
     telegramId?: string,
   ) {
-    return this.recurrentes.removeRecurrente(
+    return this.deps.recurrentes.removeRecurrente(
       usuarioIdentifier,
       id,
       telegramId,
@@ -125,14 +117,14 @@ export class GastosService {
   }
 
   ejecutarRecurrente(reglaId: number) {
-    return this.recurrentes.ejecutarRecurrente(reglaId);
+    return this.deps.recurrentes.ejecutarRecurrente(reglaId);
   }
 
   ejecutarVencidas() {
-    return this.recurrentes.ejecutarVencidas();
+    return this.deps.recurrentes.ejecutarVencidas();
   }
 
   obtenerYMarcarNotificaciones() {
-    return this.recurrentes.obtenerYMarcarNotificaciones();
+    return this.deps.recurrentes.obtenerYMarcarNotificaciones();
   }
 }

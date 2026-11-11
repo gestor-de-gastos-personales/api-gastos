@@ -4,14 +4,14 @@ import {
   IsNumber,
   IsPositive,
   IsString,
-  Max,
   Min,
 } from 'class-validator';
+import { rango } from '../../common/validacion.js';
 
 /** Alta o actualización de un presupuesto mensual por categoría (F5). */
 export class CreatePresupuestoDto {
   @IsString()
-  @IsNotEmpty({ message: 'El telegramId es obligatorio' })
+  @IsNotEmpty({ message: 'el telegramId es obligatorio' })
   telegramId: string;
 
   @IsInt({ message: 'categoriaId debe ser un entero' })
@@ -23,8 +23,7 @@ export class CreatePresupuestoDto {
   monto: number;
 
   @IsInt({ message: 'mes debe ser un entero' })
-  @Min(1, { message: 'mes debe estar entre 1 y 12' })
-  @Max(12, { message: 'mes debe estar entre 1 y 12' })
+  @rango(1, 12)
   mes: number;
 
   @IsInt({ message: 'anio debe ser un entero' })

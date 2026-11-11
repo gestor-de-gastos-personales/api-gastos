@@ -1,20 +1,11 @@
-import { Type } from 'class-transformer';
-import {
-  IsBoolean,
-  IsIn,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { booleano, decimal, entero, rango } from '../../common/validacion.js';
+import { FRECUENCIAS } from '../gastos.types.js';
+import type { Frecuencia } from '../gastos.types.js';
 
 export class CreateGastoRecurrenteDto {
   @IsNotEmpty()
-  @Type(() => Number)
-  @IsInt()
+  @entero()
   usuarioId!: number;
 
   @IsOptional()
@@ -22,8 +13,7 @@ export class CreateGastoRecurrenteDto {
   telegramId?: string;
 
   @IsNotEmpty()
-  @Type(() => Number)
-  @IsNumber()
+  @decimal()
   monto!: number;
 
   @IsOptional()
@@ -31,8 +21,7 @@ export class CreateGastoRecurrenteDto {
   comercio?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
+  @entero()
   categoriaId?: number;
 
   @IsOptional()
@@ -44,25 +33,20 @@ export class CreateGastoRecurrenteDto {
   descripcion!: string;
 
   @IsNotEmpty()
-  @IsIn(['DIARIA', 'SEMANAL', 'MENSUAL', 'ANUAL'])
-  frecuencia!: 'DIARIA' | 'SEMANAL' | 'MENSUAL' | 'ANUAL';
+  @IsIn(FRECUENCIAS)
+  frecuencia!: Frecuencia;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  @Max(6)
+  @entero()
+  @rango(0, 6)
   diaSemana?: number;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(31)
+  @entero()
+  @rango(1, 31)
   diaMes?: number;
 
   @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
+  @booleano()
   activo?: boolean;
 }

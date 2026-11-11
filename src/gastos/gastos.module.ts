@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GastosService } from './services/gastos.service.js';
+import { GastosDeps } from './services/gastos-deps.js';
 import { GastosConsultaService } from './services/gastos-consulta.service.js';
 import { GastosEscrituraService } from './services/gastos-escritura.service.js';
 import { GastosResumenService } from './services/gastos-resumen.service.js';
@@ -28,6 +29,7 @@ import { AuthModule } from '../auth/auth.module.js';
   ],
   providers: [
     GastosService,
+    GastosDeps,
     GastosConsultaService,
     GastosEscrituraService,
     GastosResumenService,

@@ -11,6 +11,16 @@ export type RangoResumen =
   | '2_MONTHS'
   | 'YEAR';
 
+/** Frecuencias admitidas por los gastos recurrentes. */
+export type Frecuencia = 'DIARIA' | 'SEMANAL' | 'MENSUAL' | 'ANUAL';
+
+export const FRECUENCIAS: Frecuencia[] = [
+  'DIARIA',
+  'SEMANAL',
+  'MENSUAL',
+  'ANUAL',
+];
+
 /** Opciones de período que aceptan los resúmenes web y del bot. */
 export interface OpcionesResumen {
   mes?: number;
