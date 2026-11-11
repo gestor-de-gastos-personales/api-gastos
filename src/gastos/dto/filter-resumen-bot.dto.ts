@@ -8,6 +8,7 @@ import {
 import type { RangoResumen } from '../gastos.types.js';
 
 export const RANGOS_RESUMEN: RangoResumen[] = [
+  'TODAY',
   'WEEK',
   '15_DAYS',
   'MONTH',
@@ -17,7 +18,8 @@ export const RANGOS_RESUMEN: RangoResumen[] = [
 
 /**
  * Filtro del resumen que consume el bot. Permite fechas explícitas
- * (`desde`/`hasta`) o un rango predefinido (`rango`).
+ * (`desde`/`hasta`) o un rango predefinido (`rango`), y filtrar por
+ * categoría por nombre.
  */
 export class FilterResumenBotDto {
   @IsString()
@@ -35,4 +37,9 @@ export class FilterResumenBotDto {
   @IsOptional()
   @IsIn(RANGOS_RESUMEN, { message: 'El rango solicitado no es válido' })
   rango?: RangoResumen;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty({ message: 'La categoría no puede estar vacía' })
+  categoria?: string;
 }

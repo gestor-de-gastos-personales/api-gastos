@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { GastosService } from '../services/gastos.service.js';
 import { FilterGastosDto } from '../dto/filter-gasto.dto.js';
 import { Autenticado } from '../../auth/decorators/autenticado.decorator.js';
@@ -15,10 +15,5 @@ export class GastosListadoController {
     @Query() filterDto: FilterGastosDto,
   ) {
     return this.gastosService.findAll(usuarioId, filterDto);
-  }
-
-  @Get(':id')
-  findOne(@GetUser('id') usuarioId: number, @Param('id') id: string) {
-    return this.gastosService.findOne(usuarioId, Number(id));
   }
 }

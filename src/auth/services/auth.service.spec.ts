@@ -9,9 +9,9 @@ import { AuthService } from './auth.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 vi.mock('bcrypt', () => ({
-  hash: vi.fn(async (password: string) => `hash:${password}`),
+  hash: vi.fn(async (password: string) => `h:${password}`),
   compare: vi.fn(
-    async (password: string, hash: string) => hash === `hash:${password}`,
+    async (password: string, hash: string) => hash === `h:${password}`,
   ),
 }));
 
@@ -52,20 +52,20 @@ describe('AuthService', () => {
         id: 1,
         email: 'ana@mail.com',
         nombre: 'Ana',
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
 
       const resultado = await service.register({
         email: 'ana@mail.com',
-        password: 'secreto123',
+        password: 'clave',
         nombre: 'Ana',
       });
 
-      expect(bcrypt.hash).toHaveBeenCalledWith('secreto123', 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith('clave', 10);
       expect(prismaMock.usuario.create).toHaveBeenCalledWith({
         data: {
           email: 'ana@mail.com',
-          password: 'hash:secreto123',
+          password: 'h:clave',
           nombre: 'Ana',
         },
       });
@@ -82,7 +82,7 @@ describe('AuthService', () => {
       await expect(
         service.register({
           email: 'ana@mail.com',
-          password: 'secreto123',
+          password: 'clave',
           nombre: 'Ana',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -95,16 +95,16 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue({
         id: 1,
         email: 'ana@mail.com',
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
-      jwtMock.signAsync.mockResolvedValue('jwt-firmado');
+      jwtMock.signAsync.mockResolvedValue('jwt');
 
       const resultado = await service.login({
         email: 'ana@mail.com',
-        password: 'secreto123',
+        password: 'clave',
       });
 
-      expect(resultado).toEqual({ access_token: 'jwt-firmado' });
+      expect(resultado).toEqual({ access_token: 'jwt' });
       expect(jwtMock.signAsync).toHaveBeenCalledWith({
         sub: 1,
         email: 'ana@mail.com',
@@ -115,7 +115,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.login({ email: 'nadie@mail.com', password: 'secreto123' }),
+        service.login({ email: 'nadie@mail.com', password: 'clave' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -127,7 +127,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.login({ email: 'ana@mail.com', password: 'secreto123' }),
+        service.login({ email: 'ana@mail.com', password: 'clave' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -135,7 +135,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue({
         id: 1,
         email: 'ana@mail.com',
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
 
       await expect(
@@ -149,19 +149,19 @@ describe('AuthService', () => {
     it('vincula el telegramId a una cuenta web válida', async () => {
       prismaMock.usuario.findUnique.mockResolvedValue({
         id: 1,
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
       prismaMock.usuario.findFirst.mockResolvedValue(null);
       prismaMock.usuario.update.mockResolvedValue({
         id: 1,
         email: 'ana@mail.com',
-        password: 'hash:secreto123',
+        password: 'h:clave',
         telegramId: '555',
       });
 
       const resultado = await service.vincularTelegram({
         email: 'ana@mail.com',
-        password: 'secreto123',
+        password: 'clave',
         telegramId: '555',
       });
 
@@ -175,13 +175,13 @@ describe('AuthService', () => {
     it('rechaza credenciales inválidas', async () => {
       prismaMock.usuario.findUnique.mockResolvedValue({
         id: 1,
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
 
       await expect(
         service.vincularTelegram({
           email: 'ana@mail.com',
-          password: 'incorrecta',
+          password: 'otra',
           telegramId: '555',
         }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
@@ -190,14 +190,14 @@ describe('AuthService', () => {
     it('rechaza un telegramId ya vinculado a otra cuenta', async () => {
       prismaMock.usuario.findUnique.mockResolvedValue({
         id: 1,
-        password: 'hash:secreto123',
+        password: 'h:clave',
       });
       prismaMock.usuario.findFirst.mockResolvedValue({ id: 2 });
 
       await expect(
         service.vincularTelegram({
           email: 'ana@mail.com',
-          password: 'secreto123',
+          password: 'clave',
           telegramId: '555',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -212,20 +212,20 @@ describe('AuthService', () => {
       prismaMock.usuario.create.mockResolvedValue({
         id: 2,
         email: 'bot@mail.com',
-        password: 'hash:secreto123',
+        password: 'h:clave',
         telegramId: '777',
       });
 
       const resultado = await service.registerTelegram({
         email: 'bot@mail.com',
-        password: 'secreto123',
+        password: 'clave',
         telegramId: '777',
       });
 
       expect(prismaMock.usuario.create).toHaveBeenCalledWith({
         data: {
           email: 'bot@mail.com',
-          password: 'hash:secreto123',
+          password: 'h:clave',
           nombre: 'Usuario Telegram',
           telegramId: '777',
         },
@@ -239,7 +239,7 @@ describe('AuthService', () => {
       await expect(
         service.registerTelegram({
           email: 'bot@mail.com',
-          password: 'secreto123',
+          password: 'clave',
           telegramId: '777',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -252,7 +252,7 @@ describe('AuthService', () => {
       await expect(
         service.registerTelegram({
           email: 'bot@mail.com',
-          password: 'secreto123',
+          password: 'clave',
           telegramId: '777',
         }),
       ).rejects.toBeInstanceOf(ConflictException);
