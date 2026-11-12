@@ -11,6 +11,7 @@ export interface GastoWhere {
   usuarioId: number;
   fecha?: { gte?: Date; lte?: Date };
   categoriaId?: number;
+  monto?: { gte?: number; lte?: number };
 }
 
 const noEncontrado = (mensaje: string) => new NotFoundException(mensaje);
@@ -35,7 +36,8 @@ export class GastosConsultaService {
 
   /** Construye el `where` del listado web (fechas en `DD-MM-YYYY`). */
   construirWhere(usuarioId: number, filtro?: FilterGastosDto): GastoWhere {
-    const { fechaInicio, fechaFin, categoriaId } = filtro || {};
+    const { fechaInicio, fechaFin, categoriaId, montoMin, montoMax } =
+      filtro || {};
     const where: GastoWhere = { usuarioId };
 
     if (fechaInicio || fechaFin) {
@@ -47,6 +49,13 @@ export class GastosConsultaService {
 
     if (categoriaId) {
       where.categoriaId = Number(categoriaId);
+    }
+
+    if (montoMin !== undefined || montoMax !== undefined) {
+      where.monto = {
+        ...(montoMin !== undefined && { gte: Number(montoMin) }),
+        ...(montoMax !== undefined && { lte: Number(montoMax) }),
+      };
     }
 
     return where;

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { FilterGastosDto } from './filter-gasto.dto.js';
 import { FilterUltimosDto } from './filter-ultimos.dto.js';
 import { FilterResumenBotDto } from './filter-resumen-bot.dto.js';
 import { FilterResumenDto } from './filter-resumen.dto.js';
@@ -9,6 +10,39 @@ import { UpdateGastoDto } from './update-gasto.dto.js';
 async function erroresDe<T extends object>(clase: new () => T, datos: object) {
   return validate(plainToInstance(clase, datos));
 }
+
+describe('FilterGastosDto', () => {
+  it('acepta rango de fechas, categoría y montos', async () => {
+    const dto = plainToInstance(FilterGastosDto, {
+      fechaInicio: '01-11-2026',
+      fechaFin: '30-11-2026',
+      categoriaId: '2',
+      montoMin: '100',
+      montoMax: '2500.50',
+    });
+
+    expect(dto.categoriaId).toBe(2);
+    expect(dto.montoMin).toBe(100);
+    expect(dto.montoMax).toBe(2500.5);
+    await expect(
+      erroresDe(FilterGastosDto, {
+        fechaInicio: '01-11-2026',
+        fechaFin: '30-11-2026',
+        categoriaId: '2',
+        montoMin: '100',
+        montoMax: '2500.50',
+      }),
+    ).resolves.toHaveLength(0);
+  });
+
+  it('rechaza montos negativos o no numéricos', async () => {
+    const negativo = await erroresDe(FilterGastosDto, { montoMin: -1 });
+    expect(negativo[0].property).toBe('montoMin');
+
+    const texto = await erroresDe(FilterGastosDto, { montoMax: 'mucho' });
+    expect(texto[0].property).toBe('montoMax');
+  });
+});
 
 describe('FilterUltimosDto', () => {
   it('usa limit 10 y page 1 por defecto', async () => {

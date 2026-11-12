@@ -183,6 +183,8 @@ describe('GastosService', () => {
         fechaInicio: '01-10-2026',
         fechaFin: '31-10-2026',
         categoriaId: 4,
+        montoMin: 100,
+        montoMax: 500,
       });
 
       const where = prismaMock.gasto.findMany.mock.calls[0][0].where;
@@ -190,6 +192,7 @@ describe('GastosService', () => {
       expect(where.categoriaId).toBe(4);
       expect(where.fecha.gte).toEqual(new Date('2026-10-01T00:00:00.000Z'));
       expect(where.fecha.lte).toEqual(new Date('2026-10-31T23:59:59.999Z'));
+      expect(where.monto).toEqual({ gte: 100, lte: 500 });
     });
   });
 
