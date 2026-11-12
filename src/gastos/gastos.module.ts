@@ -12,6 +12,7 @@ import { GastosListadoController } from './controllers/gastos-listado.controller
 import { GastosResumenController } from './controllers/gastos-resumen.controller.js';
 import { GastosBotController } from './controllers/gastos-bot.controller.js';
 import { GastosRecurrentesController } from './controllers/gastos-recurrentes.controller.js';
+import { GastosRecurrentesMiosController } from './controllers/gastos-recurrentes-mios.controller.js';
 import { GastosSerieController } from './controllers/gastos-serie.controller.js';
 import { GastosDetalleController } from './controllers/gastos-detalle.controller.js';
 import { GastosRecurrentesScheduler } from './scheduler/gastos-recurrentes.scheduler.js';
@@ -25,6 +26,7 @@ import { AuthModule } from '../auth/auth.module.js';
     GastosBotController,
     GastosResumenController,
     GastosRecurrentesController,
+    GastosRecurrentesMiosController,
     GastosSerieController,
     GastosAltaController,
     GastosListadoController,

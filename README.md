@@ -5,3 +5,12 @@
 Detalle completo en [`docs/EVALUACION.md`](docs/EVALUACION.md).
 <!-- calidad:fin -->
 
+## Asistente web
+
+El asistente del frontend usa el proxy autenticado de la API:
+
+- `POST /chat/analizar` (JWT)
+- `POST /chat/analizar-imagen` (JWT, multipart, máximo 10 MB)
+- `GET|POST /gastos/recurrentes/mios` (JWT)
+
+Requiere `SERVICIO_IA_URL` apuntando al servicio de IA.

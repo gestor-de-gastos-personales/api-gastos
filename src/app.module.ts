@@ -9,6 +9,7 @@ import { CategoriasModule } from './categorias/categorias.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { PresupuestosModule } from './presupuestos/presupuestos.module.js';
 import { GruposModule } from './grupos/grupos.module.js';
+import { ChatModule } from './chat/chat.module.js';
 import { crearOpcionesLogger } from './common/logger/opciones-logger.js';
 
 @Module({
@@ -21,6 +22,7 @@ import { crearOpcionesLogger } from './common/logger/opciones-logger.js';
     AuthModule,
     PresupuestosModule,
     GruposModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
