@@ -259,4 +259,37 @@ describe('AuthService', () => {
       expect(prismaMock.usuario.create).not.toHaveBeenCalled();
     });
   });
+
+  describe('perfil', () => {
+    it('devuelve el usuario sin la contraseña', async () => {
+      prismaMock.usuario.findUnique.mockResolvedValue({
+        id: 7,
+        email: 'ana@mail.com',
+        nombre: 'Ana',
+        telegramId: '777',
+        password: 'h:clave',
+      });
+
+      const perfil = await service.perfil(7);
+
+      expect(prismaMock.usuario.findUnique).toHaveBeenCalledWith({
+        where: { id: 7 },
+      });
+      expect(perfil).toEqual({
+        id: 7,
+        email: 'ana@mail.com',
+        nombre: 'Ana',
+        telegramId: '777',
+      });
+      expect(perfil).not.toHaveProperty('password');
+    });
+
+    it('rechaza un usuario inexistente', async () => {
+      prismaMock.usuario.findUnique.mockResolvedValue(null);
+
+      await expect(service.perfil(99)).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
+    });
+  });
 });

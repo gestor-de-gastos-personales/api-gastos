@@ -96,3 +96,22 @@ export interface GastoConFecha<T> {
   fechaFormateada: string;
   gasto: T;
 }
+
+/** Agrupación admitida por la serie temporal de gastos. */
+export type AgrupacionSerie = 'dia' | 'semana' | 'mes';
+
+/** Punto de la serie temporal (clave ISO + etiqueta legible). */
+export interface PuntoSerie {
+  clave: string;
+  etiqueta: string;
+  total: number;
+}
+
+/** Serie de totales por período para los gráficos del dashboard. */
+export interface SerieGastos {
+  desde: string;
+  hasta: string;
+  agrupacion: AgrupacionSerie;
+  puntos: PuntoSerie[];
+  totalGeneral: number;
+}

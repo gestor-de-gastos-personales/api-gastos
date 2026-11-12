@@ -3,12 +3,21 @@ import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter.js';
+import { origenesCors } from './common/config/cors.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   // Usa el logger pino de nestjs-pino también para los logs internos de Nest.
   app.useLogger(app.get(Logger));
+
+  // El front web corre en otro origen (Vite): se habilita CORS configurable.
+  app.enableCors({
+    origin: origenesCors(),
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

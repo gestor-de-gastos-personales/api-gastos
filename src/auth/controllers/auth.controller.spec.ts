@@ -8,6 +8,7 @@ describe('AuthController', () => {
   const serviceMock = {
     register: vi.fn(),
     login: vi.fn(),
+    perfil: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -37,5 +38,15 @@ describe('AuthController', () => {
       access_token: 'jwt',
     });
     expect(serviceMock.login).toHaveBeenCalledWith(dto);
+  });
+
+  it('devuelve el perfil del usuario autenticado', async () => {
+    serviceMock.perfil.mockResolvedValue({ id: 7, email: 'ana@mail.com' });
+
+    await expect(controller.me(7)).resolves.toEqual({
+      id: 7,
+      email: 'ana@mail.com',
+    });
+    expect(serviceMock.perfil).toHaveBeenCalledWith(7);
   });
 });
