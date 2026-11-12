@@ -1,10 +1,4 @@
-import {
-  IsDateString,
-  IsIn,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsDateString, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import type { RangoResumen } from '../gastos.types.js';
 
 export const RANGOS_RESUMEN: RangoResumen[] = [
@@ -23,23 +17,23 @@ export const RANGOS_RESUMEN: RangoResumen[] = [
  */
 export class FilterResumenBotDto {
   @IsString()
-  @IsNotEmpty({ message: 'El telegramId es obligatorio' })
+  @IsNotEmpty({ message: 'el telegramId es obligatorio' })
   telegramId: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'desde debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'desde debe ser una fecha iso válida' })
   desde?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'hasta debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'hasta debe ser una fecha iso válida' })
   hasta?: string;
 
   @IsOptional()
-  @IsIn(RANGOS_RESUMEN, { message: 'El rango solicitado no es válido' })
+  @IsIn(RANGOS_RESUMEN, { message: 'el rango solicitado no es válido' })
   rango?: RangoResumen;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'La categoría no puede estar vacía' })
+  @IsNotEmpty({ message: 'la categoría no puede estar vacía' })
   categoria?: string;
 }

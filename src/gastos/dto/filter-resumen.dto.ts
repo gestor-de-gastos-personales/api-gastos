@@ -1,6 +1,6 @@
-import { IsOptional, IsInt, Min, Max, IsIn, IsDateString, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
 import { RANGOS_RESUMEN } from './filter-resumen-bot.dto.js';
+import { entero, rango } from '../../common/validacion.js';
 import type { RangoResumen } from '../gastos.types.js';
 
 /**
@@ -9,29 +9,25 @@ import type { RangoResumen } from '../gastos.types.js';
  */
 export class FilterResumenDto {
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(12)
+  @entero()
+  @rango(1, 12)
   mes?: number;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(2000)
-  @Max(2100)
+  @entero()
+  @rango(2000, 2100)
   anio?: number;
 
   @IsOptional()
-  @IsIn(RANGOS_RESUMEN, { message: 'El rango solicitado no es válido' })
+  @IsIn(RANGOS_RESUMEN, { message: 'el rango solicitado no es válido' })
   rango?: RangoResumen;
 
   @IsOptional()
-  @IsDateString({}, { message: 'desde debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'desde debe ser una fecha iso válida' })
   desde?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'hasta debe ser una fecha ISO válida' })
+  @IsDateString({}, { message: 'hasta debe ser una fecha iso válida' })
   hasta?: string;
 
   @IsOptional()
