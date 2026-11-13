@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación III (RepoSense + análisis de calidad + constancia). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-11.
+> Generado: 2026-11-13.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
 | Tipo de proyecto | backend |
-| Índice de calidad de servicios | **22/100** (mínimo 50) |
+| Índice de calidad de servicios | **31/100** (mínimo 50) |
 | Criterios cumplidos | **12/15** |
 | Aprobado (semáforo) | **NO** |
-| Código (LOC) | 2,718 |
-| Archivos de código | 71 |
-| Tests (archivos) | 19 |
-| Cobertura de líneas | 83.3% (mínimo 80%) |
+| Código (LOC) | 2,995 |
+| Archivos de código | 78 |
+| Tests (archivos) | 24 |
+| Cobertura de líneas | 88.2% (mínimo 80%) |
 | Capas detectadas | presentacion, logica, datos |
 | Pushes directos a `main` (sin PR) | 0 |
 
@@ -26,7 +26,7 @@
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| blevatino | 39 | 3,343 | 2,252 | 56 | 17 | 100% |
+| blevatino | 42 | 3,664 | 2,734 | 34 | 18 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
@@ -36,7 +36,7 @@
 
 | Alumno | Sesiones | Cumplimiento | Pausa | Recencia | IC | Nivel | Para subir de nivel |
 |---|--:|--:|--:|--:|--:|--|--|
-| blevatino | 17 | 66% | 19 d | 100% | **57** | Aprueba | Cumplimiento 66% (mín. 100%); Pausa 19 d (máx. 5 d) |
+| blevatino | 18 | 68% | 19 d | 93% | **58** | Aprueba | Cumplimiento 68% (mín. 100%); Pausa 19 d (máx. 5 d) |
 
 > Para aprobar el IC: **2 sesiones por semana** sostenidas, sin pausas mayores a **10 días** y con actividad en las **últimas 2 semanas**. Se excluyen merges, bots y al docente. Zona horaria UTC-3.
 
@@ -48,7 +48,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Un resumen numérico (0-100) que combina todas las señales y métricas del análisis, con topes duros por duplicación.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **22/100** _(mínimo 50)_
+- **Tu resultado:** índice **31/100** _(mínimo 50)_
 - **Para investigar la causa:**
     - ¿En qué momento del proyecto se concentraron los problemas (arranque, integración de partes, cierre)?
     - ¿El índice bajó por muchas señales chicas o por una o dos graves?
@@ -58,7 +58,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de bloques de código repetidos (similitud) en el repositorio.
 - **Por qué importa:** Cada copia se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **10.6%** de duplicación _(máximo 15%)_
+- **Tu resultado:** **6.6%** de duplicación _(máximo 15%)_
 
 ### 3. Secretos hardcodeados (SEC) — OK
 
@@ -106,7 +106,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Una clase o unidad cuyos métodos y campos no están relacionados entre sí.
 - **Por qué importa:** Una unidad que cambia por motivos distintos es frágil y cuesta entenderla.
-- **Tu resultado:** **3** unidad(es) con baja cohesión _(máximo 0)_
+- **Tu resultado:** **2** unidad(es) con baja cohesión _(máximo 0)_
 - **Para investigar la causa:**
     - ¿La unidad agrupa cosas que en realidad pertenecen a lugares distintos?
     - ¿Cambia por motivos diferentes según la tarea?
@@ -116,7 +116,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Complejidad ciclomática: cantidad de caminos posibles dentro de una función (condicionales, bucles, casos).
 - **Por qué importa:** Muchos caminos = difícil de seguir y de probar; suelen esconderse casos sin cubrir.
-- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 2718 LOC))_
+- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 2995 LOC))_
 
 ### 12. Funciones/métodos largos o con muchos parámetros (Tam) — OK
 
@@ -128,7 +128,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Cuánto depende una unidad de las partes internas de otra.
 - **Por qué importa:** Piezas muy enlazadas hacen que un cambio se propague y que sea difícil reemplazar partes.
-- **Tu resultado:** **20** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
+- **Tu resultado:** **15** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
 - **Para investigar la causa:**
     - ¿Las piezas se conocen en detalle entre sí (acceden a campos o estructuras internas)?
     - ¿El acceso a datos ocurre desde lugares que no son los responsables?
@@ -138,13 +138,13 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de líneas de código ejecutadas por la suite de tests (cobertura real, no cantidad de archivos de test).
 - **Por qué importa:** Un test que existe pero no ejecuta el código no protege de nada: la cobertura muestra qué partes quedan sin verificar.
-- **Tu resultado:** **83.3%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
+- **Tu resultado:** **88.2%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
 
 ### 15. Endpoints del backend (EP) — OK
 
 - **Qué mide:** Cantidad de endpoints (rutas HTTP) expuestos por el backend.
 - **Por qué importa:** El backend se mide por lo que expone: pocos endpoints sugiere poca funcionalidad de servicio.
-- **Tu resultado:** **31** endpoint(s) _(mínimo 5)_
+- **Tu resultado:** **35** endpoint(s) _(mínimo 5)_
 
 ## 5. Observaciones y qué falta
 
@@ -152,19 +152,19 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 
 | Criterio | Resultado actual | Meta | Brecha | Cómo alcanzarlo |
 |---|---|---|---|---|
-| Índice de calidad de servicios (indice) | índice **22/100** | mínimo 50 | faltan 28 pts | El índice sólo penaliza lo que **excede** los umbrales de cada criterio: si tenés todo en verde, el índice es 100. Si está en rojo, mirá la columna **Brecha** y los criterios en rojo; corregí primero duplicación, SEC, SQL y capas. Meta del perfil exigente: ≥50. |
-| Baja cohesión (Coh) | **3** unidad(es) con baja cohesión | máximo 0 | 3 clase(s) a separar | Separá la clase en unidades con una sola responsabilidad: si los métodos cambian por motivos distintos, son clases distintas. Meta: 0 clases con baja cohesión. |
-| Acoplamiento alto (Acop) | **20** unidad(es) con acoplamiento alto | máximo 2 por 1000 LOC | 20 hallazgo(s); el máximo para 2,718 LOC es 5.4 | Hacé que cada unidad dependa de una interfaz o de un módulo de servicio, no de los detalles internos de otra; evitá acceder a campos ajenos. Meta: ≤2 por 1000 LOC. |
+| Índice de calidad de servicios (indice) | índice **31/100** | mínimo 50 | faltan 19 pts | El índice sólo penaliza lo que **excede** los umbrales de cada criterio: si tenés todo en verde, el índice es 100. Si está en rojo, mirá la columna **Brecha** y los criterios en rojo; corregí primero duplicación, SEC, SQL y capas. Meta del perfil exigente: ≥50. |
+| Baja cohesión (Coh) | **2** unidad(es) con baja cohesión | máximo 0 | 2 clase(s) a separar | Separá la clase en unidades con una sola responsabilidad: si los métodos cambian por motivos distintos, son clases distintas. Meta: 0 clases con baja cohesión. |
+| Acoplamiento alto (Acop) | **15** unidad(es) con acoplamiento alto | máximo 2 por 1000 LOC | 15 hallazgo(s); el máximo para 2,995 LOC es 6.0 | Hacé que cada unidad dependa de una interfaz o de un módulo de servicio, no de los detalles internos de otra; evitá acceder a campos ajenos. Meta: ≤2 por 1000 LOC. |
 
 > Empezá por las señales de seguridad (**SEC**, **SQL**) y por la **duplicación**: son las que más pesan en el índice y las más rápidas de verificar a ojo. Después de corregir, volvé a correr la medición: el semáforo se recalcula sobre `main`.
 
-## 6. Actividad en clase (miércoles y viernes)
+## 6. Actividad en clase y fuera de clase
 
-> Se consideran las **26 clases** del período (miércoles y viernes, según `config/constancia.json`; feriados y semanas sin clase descontados). `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**.
+> Se consideran las **27 clases** del período (miércoles y viernes, según `config/constancia.json`; feriados y semanas sin clase descontados). Para cada alumno se muestra la actividad **en cada clase** y también la actividad **fuera de los días de clase** (fines de semana u otros días). `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**.
 
 ### blevatino
 
-**15/26 clases con actividad** · 37 commits · 22 merges
+**15/27 clases con actividad** · total del período: 57 commits · 23 merges
 
 | Fecha | Actividad | Repositorios | Commits / merges |
 |---|:--:|---|--:|
@@ -193,18 +193,30 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 | 2026-10-30 | **Sí** | front-web | 1 / 0 |
 | 2026-11-04 | No | sin actividad | 0 / 0 |
 | 2026-11-06 | No | sin actividad | 0 / 0 |
-| 2026-11-11 | **Sí** | api-gastos, bot-telegram, servicio-ia | 3 / 6 |
+| 2026-11-11 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 23 / 7 |
+| 2026-11-13 | No | sin actividad | 0 / 0 |
+
+**Fuera de clase:** 6 fecha(s) con actividad · 74 commits · 10 merges
+
+| Fecha | Repositorios | Commits / merges |
+|---|---|--:|
+| 2026-10-13 | api-gastos, bot-telegram, servicio-ia | 8 / 1 |
+| 2026-10-22 | api-gastos, bot-telegram, servicio-ia | 40 / 6 |
+| 2026-10-27 | api-gastos, bot-telegram | 2 / 0 |
+| 2026-10-29 | api-gastos, bot-telegram, servicio-ia | 5 / 0 |
+| 2026-11-07 | api-gastos, bot-telegram, servicio-ia | 3 / 0 |
+| 2026-11-12 | api-gastos, front-web, servicio-ia | 16 / 3 |
 
 ## 7. Anexo: dónde mirar
 
 Archivos donde el análisis encontró cada señal en rojo (sin número de línea, a propósito):
 
-**Baja cohesión (Coh)** — 3 archivo(s):
+**Baja cohesión (Coh)** — 2 archivo(s):
 - `src/auth/services/auth.service.ts`
 - `src/gastos/services/gastos-consulta.service.ts`
-- `src/gastos/services/gastos.service.ts`
 
-**Acoplamiento alto (Acop)** — 20 archivo(s):
+**Acoplamiento alto (Acop)** — 15 archivo(s):
+- `src/auth/controllers/auth.controller.ts`
 - `src/auth/controllers/telegram-auth.controller.ts`
 - `src/auth/services/auth.service.ts`
 - `src/categorias/services/categorias.service.ts`
@@ -212,19 +224,13 @@ Archivos donde el análisis encontró cada señal en rojo (sin número de línea
 - `src/gastos/controllers/gastos-bot.controller.ts`
 - `src/gastos/controllers/gastos-detalle.controller.ts`
 - `src/gastos/controllers/gastos-recurrentes.controller.ts`
-- `src/gastos/dto/create-gasto-recurrente.dto.ts`
-- `src/gastos/dto/filter-gasto.dto.ts`
-- `src/gastos/dto/filter-resumen-bot.dto.ts`
-- `src/gastos/dto/filter-resumen.dto.ts`
-- `src/gastos/dto/filter-ultimos.dto.ts`
-- `src/gastos/dto/update-gasto-recurrente.dto.ts`
 - `src/gastos/services/gastos-consulta.service.ts`
 - `src/gastos/services/gastos-recurrentes.service.ts`
 - `src/gastos/services/gastos-resumen.service.ts`
 - `src/gastos/services/gastos.service.ts`
 - `src/gastos/services/usuarios-gastos.service.ts`
 - `src/grupos/grupos.service.ts`
-- `src/presupuestos/dto/create-presupuesto.dto.ts`
+- `src/presupuestos/presupuestos.controller.ts`
 
 ---
 _Informe generado por la cátedra. Los umbrales corresponden al perfil `exigente`. Ante dudas, revisá el archivo señalado y el criterio en `CRITERIOS-CALIDAD.md`._
