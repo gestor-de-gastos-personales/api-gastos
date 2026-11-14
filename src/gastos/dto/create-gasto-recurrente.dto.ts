@@ -1,52 +1,51 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { booleano, decimal, entero, rango } from '../../common/validacion.js';
-import { FRECUENCIAS } from '../gastos.types.js';
-import type { Frecuencia } from '../gastos.types.js';
+import * as cv from 'class-validator';
+import * as validacion from '../../common/validacion.js';
+import * as tipos from '../gastos.types.js';
 
 export class CreateGastoRecurrenteDto {
-  @IsNotEmpty()
-  @entero()
+  @cv.IsNotEmpty()
+  @validacion.entero()
   usuarioId!: number;
 
-  @IsOptional()
-  @IsString()
+  @cv.IsOptional()
+  @cv.IsString()
   telegramId?: string;
 
-  @IsNotEmpty()
-  @decimal()
+  @cv.IsNotEmpty()
+  @validacion.decimal()
   monto!: number;
 
-  @IsOptional()
-  @IsString()
+  @cv.IsOptional()
+  @cv.IsString()
   comercio?: string;
 
-  @IsOptional()
-  @entero()
+  @cv.IsOptional()
+  @validacion.entero()
   categoriaId?: number;
 
-  @IsOptional()
-  @IsString()
+  @cv.IsOptional()
+  @cv.IsString()
   categoria?: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @cv.IsNotEmpty()
+  @cv.IsString()
   descripcion!: string;
 
-  @IsNotEmpty()
-  @IsIn(FRECUENCIAS)
-  frecuencia!: Frecuencia;
+  @cv.IsNotEmpty()
+  @cv.IsIn(tipos.FRECUENCIAS)
+  frecuencia!: tipos.Frecuencia;
 
-  @IsOptional()
-  @entero()
-  @rango(0, 6)
+  @cv.IsOptional()
+  @validacion.entero()
+  @validacion.rango(0, 6)
   diaSemana?: number;
 
-  @IsOptional()
-  @entero()
-  @rango(1, 31)
+  @cv.IsOptional()
+  @validacion.entero()
+  @validacion.rango(1, 31)
   diaMes?: number;
 
-  @IsOptional()
-  @booleano()
+  @cv.IsOptional()
+  @validacion.booleano()
   activo?: boolean;
 }

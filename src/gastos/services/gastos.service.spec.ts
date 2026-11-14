@@ -2,11 +2,17 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosService } from './gastos.service.js';
 import { GastosDeps } from './gastos-deps.js';
-import { GastosConsultaService } from './gastos-consulta.service.js';
+import { GastosListadoService } from './gastos-listado.service.js';
+import { GastosUltimosService } from './gastos-ultimos.service.js';
 import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
+import { ResumenAgrupadoService } from './resumen-agrupado.service.js';
+import { ResumenMayorGastoService } from './resumen-mayor-gasto.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
+import { GastosRecurrentesEjecucionService } from './gastos-recurrentes-ejecucion.service.js';
+import { RecurrenciaCalendarioService } from './recurrencia-calendario.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('GastosService', () => {
@@ -46,11 +52,17 @@ describe('GastosService', () => {
       providers: [
         GastosService,
         GastosDeps,
-        GastosConsultaService,
+        GastosListadoService,
+        GastosUltimosService,
         GastosEscrituraService,
         GastosResumenService,
+        ResumenAgrupadoService,
+        ResumenMayorGastoService,
         GastosRecurrentesService,
+        GastosRecurrentesEjecucionService,
+        RecurrenciaCalendarioService,
         UsuariosGastosService,
+        CategoriasResolverService,
         { provide: PrismaService, useValue: prismaMock },
       ],
     }).compile();

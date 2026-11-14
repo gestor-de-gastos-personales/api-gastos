@@ -1,48 +1,13 @@
-import { Module } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { GastosService } from './services/gastos.service.js';
-import { GastosDeps } from './services/gastos-deps.js';
-import { GastosConsultaService } from './services/gastos-consulta.service.js';
-import { GastosEscrituraService } from './services/gastos-escritura.service.js';
-import { GastosResumenService } from './services/gastos-resumen.service.js';
-import { GastosRecurrentesService } from './services/gastos-recurrentes.service.js';
-import { GastosSerieService } from './services/gastos-serie.service.js';
-import { UsuariosGastosService } from './services/usuarios-gastos.service.js';
-import { GastosAltaController } from './controllers/gastos-alta.controller.js';
-import { GastosListadoController } from './controllers/gastos-listado.controller.js';
-import { GastosResumenController } from './controllers/gastos-resumen.controller.js';
-import { GastosBotController } from './controllers/gastos-bot.controller.js';
-import { GastosRecurrentesController } from './controllers/gastos-recurrentes.controller.js';
-import { GastosRecurrentesMiosController } from './controllers/gastos-recurrentes-mios.controller.js';
-import { GastosSerieController } from './controllers/gastos-serie.controller.js';
-import { GastosDetalleController } from './controllers/gastos-detalle.controller.js';
-import { GastosRecurrentesScheduler } from './scheduler/gastos-recurrentes.scheduler.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { GASTOS_CONTROLLERS, GASTOS_PROVIDERS } from './gastos.providers.js';
 
-@Module({
+@nest.Module({
   imports: [PrismaModule, AuthModule],
-  // El orden importa: las rutas literales se registran antes que `:id`.
-  controllers: [
-    GastosBotController,
-    GastosResumenController,
-    GastosRecurrentesController,
-    GastosRecurrentesMiosController,
-    GastosSerieController,
-    GastosAltaController,
-    GastosListadoController,
-    GastosDetalleController,
-  ],
-  providers: [
-    GastosService,
-    GastosDeps,
-    GastosConsultaService,
-    GastosEscrituraService,
-    GastosResumenService,
-    GastosRecurrentesService,
-    GastosSerieService,
-    UsuariosGastosService,
-    GastosRecurrentesScheduler,
-  ],
+  controllers: GASTOS_CONTROLLERS,
+  providers: GASTOS_PROVIDERS,
   exports: [GastosService],
 })
 export class GastosModule {}

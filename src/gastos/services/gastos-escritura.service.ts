@@ -1,22 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
-import { GastosConsultaService } from './gastos-consulta.service.js';
-import type { GastoInput, UpdateGastoInput } from '../gastos.types.js';
-import { parseFechaArg } from '../utils/fechas.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
+import { GastosListadoService } from './gastos-listado.service.js';
+import type * as tipos from '../gastos.types.js';
+import * as fechas from '../utils/fechas.js';
 
 /** Resuelve los campos de un gasto aceptando los alias de web y bot. */
-function resolverDescripcion(dto: GastoInput): string {
+function resolverDescripcion(dto: tipos.GastoInput): string {
   const descripcion = dto.descripcion ?? dto.description;
   const comercio = dto.comercio ?? dto.merchant;
   return descripcion || comercio || '';
 }
 
-function resolverMonto(dto: GastoInput): number {
+function resolverMonto(dto: tipos.GastoInput): number {
   return Number(dto.valor ?? dto.monto ?? dto.total ?? dto.amount);
 }
 
-function resolverCategoria(dto: GastoInput): string | number | undefined {
+function resolverCategoria(dto: tipos.GastoInput): string | number | undefined {
   return dto.categoria ?? dto.categoriaId ?? dto.category;
 }
 
@@ -24,20 +25,21 @@ function resolverCategoria(dto: GastoInput): string | number | undefined {
  * Escritura de gastos: alta, edición parcial y baja.
  * Siempre resuelve el usuario a su id interno antes de tocar datos.
  */
-@Injectable()
+@nest.Injectable()
 export class GastosEscrituraService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
-    private readonly consulta: GastosConsultaService,
+    private readonly categorias: CategoriasResolverService,
+    private readonly consulta: GastosListadoService,
   ) {}
 
-  async create(usuarioIdentifier: number | string, dto: GastoInput) {
+  async create(usuarioIdentifier: number | string, dto: tipos.GastoInput) {
     const usuarioId = await this.usuarios.obtenerOCrearUsuarioId(
       usuarioIdentifier,
       dto.telegramId,
     );
-    const categoriaId = await this.usuarios.resolverCategoriaId(
+    const categoriaId = await this.categorias.resolverCategoriaId(
       resolverCategoria(dto),
     );
 
@@ -45,7 +47,7 @@ export class GastosEscrituraService {
       data: {
         descripcion: resolverDescripcion(dto),
         monto: resolverMonto(dto),
-        fecha: dto.fecha ? parseFechaArg(dto.fecha) : new Date(),
+        fecha: dto.fecha ? fechas.parseFechaArg(dto.fecha) : new Date(),
         categoria: { connect: { id: categoriaId } },
         usuario: { connect: { id: usuarioId } },
       },
@@ -55,7 +57,7 @@ export class GastosEscrituraService {
   async update(
     usuarioIdentifier: number | string,
     id: number,
-    dto: UpdateGastoInput,
+    dto: tipos.UpdateGastoInput,
   ) {
     const usuarioId = await this.usuarios.resolverUsuarioId(usuarioIdentifier);
     await this.consulta.buscarGasto(usuarioId, id);
@@ -63,7 +65,7 @@ export class GastosEscrituraService {
     const categoriaInput = resolverCategoria(dto);
     const categoriaId =
       categoriaInput !== undefined && categoriaInput !== null
-        ? await this.usuarios.resolverCategoriaId(categoriaInput)
+        ? await this.categorias.resolverCategoriaId(categoriaInput)
         : undefined;
 
     const descripcion =
@@ -79,7 +81,7 @@ export class GastosEscrituraService {
         ...(categoriaId !== undefined && {
           categoria: { connect: { id: categoriaId } },
         }),
-        ...(fecha !== undefined && { fecha: parseFechaArg(fecha) }),
+        ...(fecha !== undefined && { fecha: fechas.parseFechaArg(fecha) }),
       },
       include: { categoria: true },
     });

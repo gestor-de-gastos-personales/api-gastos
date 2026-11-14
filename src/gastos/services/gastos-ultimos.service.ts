@@ -1,19 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
-import { FilterGastosDto } from '../dto/filter-gasto.dto.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import type { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
 import type { OpcionesResumen } from '../gastos.types.js';
-import { conFechaFormateada, parseFechaArg, parseFechaISO } from '../utils/fechas.js';
+import * as fechas from '../utils/fechas.js';
+import type { GastoWhere } from './gastos-listado.service.js';
 
-/** Filtro mínimo que consumen las consultas de gastos. */
-export interface GastoWhere {
-  usuarioId: number;
-  fecha?: { gte?: Date; lte?: Date };
-  categoriaId?: number;
-}
-
-const noEncontrado = (mensaje: string) => new NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nest.NotFoundException(mensaje);
 
 /** Filtros admitidos por el listado de últimos gastos del bot. */
 export type FiltrosUltimos = Pick<
@@ -23,87 +17,26 @@ export type FiltrosUltimos = Pick<
   Pick<OpcionesResumen, 'rango'>;
 
 /**
- * Consultas de lectura de gastos: listados, detalle, último gasto y
- * búsqueda por id. No muta datos.
+ * Consultas del bot: últimos gastos paginados y búsqueda del último gasto
+ * que coincide con los filtros. Separado del listado web para que cada
+ * unidad tenga una responsabilidad acotada.
  */
-@Injectable()
-export class GastosConsultaService {
+@nest.Injectable()
+export class GastosUltimosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
+    private readonly categorias: CategoriasResolverService,
   ) {}
-
-  /** Construye el `where` del listado web (fechas en `DD-MM-YYYY`). */
-  construirWhere(usuarioId: number, filtro?: FilterGastosDto): GastoWhere {
-    const { fechaInicio, fechaFin, categoriaId } = filtro || {};
-    const where: GastoWhere = { usuarioId };
-
-    if (fechaInicio || fechaFin) {
-      where.fecha = {
-        ...(fechaInicio && { gte: parseFechaArg(fechaInicio) }),
-        ...(fechaFin && { lte: parseFechaArg(fechaFin, true) }),
-      };
-    }
-
-    if (categoriaId) {
-      where.categoriaId = Number(categoriaId);
-    }
-
-    return where;
-  }
-
-  async findAll(usuarioId: number, filtro?: FilterGastosDto) {
-    const { page = 1, limit = 10 } = filtro || {};
-    const pageNum = Number(page);
-    const limitNum = Number(limit);
-    const where = this.construirWhere(usuarioId, filtro);
-
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.gasto.findMany({
-        where,
-        include: { categoria: true },
-        orderBy: { fecha: 'desc' },
-        skip: (pageNum - 1) * limitNum,
-        take: limitNum,
-      }),
-      this.prisma.gasto.count({ where }),
-    ]);
-
-    return {
-      data: data.map((gasto) => conFechaFormateada(gasto)),
-      meta: {
-        total,
-        page: pageNum,
-        limit: limitNum,
-        totalPages: Math.ceil(total / limitNum),
-      },
-    };
-  }
-
-  /** Busca un gasto del usuario o lanza 404 (evita filtrar datos ajenos). */
-  async buscarGasto(usuarioId: number, id: number) {
-    const gasto = await this.prisma.gasto.findFirst({
-      where: { id, usuarioId },
-      include: { categoria: true },
-    });
-
-    if (!gasto) {
-      throw noEncontrado(`Gasto con ID #${id} no encontrado`);
-    }
-
-    return gasto;
-  }
-
-  async findOne(usuarioId: number, id: number) {
-    const gasto = await this.buscarGasto(usuarioId, id);
-    return conFechaFormateada(gasto);
-  }
 
   /**
    * Lista los últimos gastos con paginación y filtros opcionales.
    * `limit` se acota a 50 para no exponer listados gigantes al bot.
    */
-  async getUltimos(usuarioIdentifier: number | string, filtro: FiltrosUltimos = {}) {
+  async getUltimos(
+    usuarioIdentifier: number | string,
+    filtro: FiltrosUltimos = {},
+  ) {
     const usuarioId = await this.usuarios.buscarUsuarioId(usuarioIdentifier);
     const limit = Math.min(Number(filtro.limit ?? 10) || 10, 50);
     const page = Math.max(Number(filtro.page ?? 1) || 1, 1);
@@ -131,7 +64,7 @@ export class GastosConsultaService {
     ]);
 
     return {
-      data: data.map((gasto) => conFechaFormateada(gasto)),
+      data: data.map((gasto) => fechas.conFechaFormateada(gasto)),
       meta: {
         total,
         page,
@@ -150,13 +83,13 @@ export class GastosConsultaService {
 
     if (filtro.desde || filtro.hasta) {
       where.fecha = {
-        ...(filtro.desde && { gte: parseFechaISO(filtro.desde, false) }),
-        ...(filtro.hasta && { lte: parseFechaISO(filtro.hasta, true) }),
+        ...(filtro.desde && { gte: fechas.parseFechaISO(filtro.desde, false) }),
+        ...(filtro.hasta && { lte: fechas.parseFechaISO(filtro.hasta, true) }),
       };
     }
 
     if (filtro.categoria) {
-      const categoria = await this.usuarios.buscarCategoriaPorNombre(
+      const categoria = await this.categorias.buscarCategoriaPorNombre(
         filtro.categoria,
       );
       // Categoría inexistente: no hay resultados posibles, se filtra por -1.
@@ -187,11 +120,11 @@ export class GastosConsultaService {
     const where: GastoWhere = { usuarioId };
 
     if (dto.desde) {
-      where.fecha = { gte: parseFechaISO(dto.desde, false) };
+      where.fecha = { gte: fechas.parseFechaISO(dto.desde, false) };
     }
 
     if (dto.categoria) {
-      const categoria = await this.usuarios.buscarCategoriaPorNombre(
+      const categoria = await this.categorias.buscarCategoriaPorNombre(
         dto.categoria,
       );
       if (categoria) where.categoriaId = categoria.id;
@@ -219,10 +152,5 @@ export class GastosConsultaService {
     }
 
     return encontrado;
-  }
-
-  async getGastoById(usuarioIdentifier: number | string, id: number) {
-    const usuarioId = await this.usuarios.resolverUsuarioId(usuarioIdentifier);
-    return this.buscarGasto(usuarioId, id);
   }
 }

@@ -1,28 +1,16 @@
-import { Module } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { GastosModule } from './gastos/gastos.module.js';
-import { PrismaModule } from './prisma/prisma.module.js';
-import { CategoriasModule } from './categorias/categorias.module.js';
-import { AuthModule } from './auth/auth.module.js';
-import { PresupuestosModule } from './presupuestos/presupuestos.module.js';
-import { GruposModule } from './grupos/grupos.module.js';
-import { ChatModule } from './chat/chat.module.js';
 import { crearOpcionesLogger } from './common/logger/opciones-logger.js';
+import { MODULOS_FEATURE } from './modules.js';
 
-@Module({
+@nest.Module({
   imports: [
     LoggerModule.forRoot(crearOpcionesLogger()),
     ScheduleModule.forRoot(),
-    GastosModule,
-    PrismaModule,
-    CategoriasModule,
-    AuthModule,
-    PresupuestosModule,
-    GruposModule,
-    ChatModule,
+    ...MODULOS_FEATURE,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,10 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { GastosDeps } from './gastos-deps.js';
-import type { FilterGastosDto } from '../dto/filter-gasto.dto.js';
-import type { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
-import type { CreateGastoRecurrenteDto } from '../dto/create-gasto-recurrente.dto.js';
-import type { UpdateGastoRecurrenteDto } from '../dto/update-gasto-recurrente.dto.js';
-import type { GastoInput, OpcionesResumen, UpdateGastoInput } from '../gastos.types.js';
+import type * as DTO from '../dto/index.js';
+import type * as tipos from '../gastos.types.js';
 
 /**
  * Fachada de gastos.
@@ -13,19 +10,19 @@ import type { GastoInput, OpcionesResumen, UpdateGastoInput } from '../gastos.ty
  * cuando todo vivía en un único servicio) pero delega en servicios
  * especializados: consulta, escritura, resumen y recurrentes.
  */
-@Injectable()
+@nest.Injectable()
 export class GastosService {
   constructor(private readonly deps: GastosDeps) {}
 
   // --- Escritura ---
-  create(usuarioIdentifier: number | string, dto: GastoInput) {
+  create(usuarioIdentifier: number | string, dto: tipos.GastoInput) {
     return this.deps.escritura.create(usuarioIdentifier, dto);
   }
 
   update(
     usuarioIdentifier: number | string,
     id: number,
-    dto: UpdateGastoInput,
+    dto: tipos.UpdateGastoInput,
   ) {
     return this.deps.escritura.update(usuarioIdentifier, id, dto);
   }
@@ -35,19 +32,19 @@ export class GastosService {
   }
 
   // --- Consulta ---
-  findAll(usuarioId: number, filtro?: FilterGastosDto) {
-    return this.deps.consulta.findAll(usuarioId, filtro);
+  findAll(usuarioId: number, filtro?: DTO.FilterGastosDto) {
+    return this.deps.listado.findAll(usuarioId, filtro);
   }
 
   findOne(usuarioId: number, id: number) {
-    return this.deps.consulta.findOne(usuarioId, id);
+    return this.deps.listado.findOne(usuarioId, id);
   }
 
   getUltimos(
     usuarioIdentifier: number | string,
-    filtro: FilterUltimosDto = {},
+    filtro: DTO.FilterUltimosDto = {},
   ) {
-    return this.deps.consulta.getUltimos(usuarioIdentifier, filtro);
+    return this.deps.ultimos.getUltimos(usuarioIdentifier, filtro);
   }
 
   getUltimoGasto(
@@ -59,23 +56,23 @@ export class GastosService {
       desde?: string;
     },
   ) {
-    return this.deps.consulta.getUltimoGasto(usuarioIdentifier, dto);
+    return this.deps.ultimos.getUltimoGasto(usuarioIdentifier, dto);
   }
 
   getGastoById(usuarioIdentifier: number | string, id: number) {
-    return this.deps.consulta.getGastoById(usuarioIdentifier, id);
+    return this.deps.listado.getGastoById(usuarioIdentifier, id);
   }
 
   // --- Resumen ---
   getResumen(
     usuarioIdentifier: number | string,
-    filtro: OpcionesResumen = {},
+    filtro: tipos.OpcionesResumen = {},
   ) {
     return this.deps.resumen.getResumen(usuarioIdentifier, filtro);
   }
 
   // --- Recurrentes ---
-  createRecurrente(dto: CreateGastoRecurrenteDto) {
+  createRecurrente(dto: DTO.CreateGastoRecurrenteDto) {
     return this.deps.recurrentes.createRecurrente(dto);
   }
 
@@ -87,13 +84,13 @@ export class GastosService {
   }
 
   getRecurrentesVencidas() {
-    return this.deps.recurrentes.getRecurrentesVencidas();
+    return this.deps.ejecucion.getRecurrentesVencidas();
   }
 
   updateRecurrente(
     usuarioIdentifier: number | string,
     id: number,
-    dto: UpdateGastoRecurrenteDto,
+    dto: DTO.UpdateGastoRecurrenteDto,
     telegramId?: string,
   ) {
     return this.deps.recurrentes.updateRecurrente(
@@ -117,14 +114,14 @@ export class GastosService {
   }
 
   ejecutarRecurrente(reglaId: number) {
-    return this.deps.recurrentes.ejecutarRecurrente(reglaId);
+    return this.deps.ejecucion.ejecutarRecurrente(reglaId);
   }
 
   ejecutarVencidas() {
-    return this.deps.recurrentes.ejecutarVencidas();
+    return this.deps.ejecucion.ejecutarVencidas();
   }
 
   obtenerYMarcarNotificaciones() {
-    return this.deps.recurrentes.obtenerYMarcarNotificaciones();
+    return this.deps.ejecucion.obtenerYMarcarNotificaciones();
   }
 }

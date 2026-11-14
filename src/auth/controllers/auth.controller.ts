@@ -1,28 +1,33 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { AuthService } from '../services/auth.service.js';
-import { RegisterDto } from '../dto/register.dto.js';
-import { LoginDto } from '../dto/login.dto.js';
+import * as nest from '@nestjs/common';
+import { AuthRegistroService } from '../services/auth-registro.service.js';
+import { AuthLoginService } from '../services/auth-login.service.js';
+import { AuthPerfilService } from '../services/auth-perfil.service.js';
+import * as DTO from '../dto/index.js';
 import { Autenticado } from '../decorators/autenticado.decorator.js';
 import { GetUser } from '../decorators/get-user.decorator.js';
 
-@Controller('auth')
+@nest.Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly registro: AuthRegistroService,
+    private readonly loginService: AuthLoginService,
+    private readonly perfilService: AuthPerfilService,
+  ) {}
 
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  @nest.Post('register')
+  register(@nest.Body() dto: DTO.RegisterDto) {
+    return this.registro.register(dto);
   }
 
-  @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  @nest.Post('login')
+  login(@nest.Body() dto: DTO.LoginDto) {
+    return this.loginService.login(dto);
   }
 
   /** Perfil del usuario autenticado: lo usa el front para restaurar la sesión. */
-  @Get('me')
+  @nest.Get('me')
   @Autenticado()
   me(@GetUser('id') usuarioId: number) {
-    return this.authService.perfil(usuarioId);
+    return this.perfilService.perfil(usuarioId);
   }
 }

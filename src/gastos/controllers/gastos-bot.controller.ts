@@ -1,8 +1,6 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { GastosService } from '../services/gastos.service.js';
-import { CreateGastoBotDto } from '../dto/create-gasto-bot.dto.js';
-import { FilterResumenBotDto } from '../dto/filter-resumen-bot.dto.js';
-import { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
+import * as DTO from '../dto/index.js';
 
 /**
  * Endpoints libres (sin JWT) que consume el bot de Telegram.
@@ -12,34 +10,34 @@ import { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
  * en este controlador, que se registra antes que el de detalle (`:id`), para
  * que Express no las capture como un id.
  */
-@Controller('gastos')
+@nest.Controller('gastos')
 export class GastosBotController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @Post('bot')
-  createFromBot(@Body() body: CreateGastoBotDto) {
+  @nest.Post('bot')
+  createFromBot(@nest.Body() body: DTO.CreateGastoBotDto) {
     return this.gastosService.create(body.telegramId, body);
   }
 
-  @Get('resumen/bot')
-  getResumenBot(@Query() filtro: FilterResumenBotDto) {
+  @nest.Get('resumen/bot')
+  getResumenBot(@nest.Query() filtro: DTO.FilterResumenBotDto) {
     return this.gastosService.getResumen(filtro.telegramId, filtro);
   }
 
   /** Últimos gastos con paginación y filtros (F1). */
-  @Get('ultimos')
-  getUltimos(@Query() filtro: FilterUltimosDto) {
+  @nest.Get('ultimos')
+  getUltimos(@nest.Query() filtro: DTO.FilterUltimosDto) {
     const identidad = filtro.telegramId ?? filtro.usuarioId ?? '0';
     return this.gastosService.getUltimos(identidad, filtro);
   }
 
-  @Get('ultimo')
+  @nest.Get('ultimo')
   ultimo(
-    @Query('usuarioId') usuarioId?: string,
-    @Query('telegramId') telegramId?: string,
-    @Query('comercio') comercio?: string,
-    @Query('categoria') categoria?: string,
-    @Query('desde') desde?: string,
+    @nest.Query('usuarioId') usuarioId?: string,
+    @nest.Query('telegramId') telegramId?: string,
+    @nest.Query('comercio') comercio?: string,
+    @nest.Query('categoria') categoria?: string,
+    @nest.Query('desde') desde?: string,
   ) {
     const identidad = usuarioId ?? telegramId ?? '0';
     return this.gastosService.getUltimoGasto(identidad, {

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TelegramAuthController } from './telegram-auth.controller.js';
-import { AuthService } from '../services/auth.service.js';
+import { AuthTelegramService } from '../services/auth-telegram.service.js';
 
 describe('TelegramAuthController', () => {
   let controller: TelegramAuthController;
@@ -15,7 +15,7 @@ describe('TelegramAuthController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TelegramAuthController],
-      providers: [{ provide: AuthService, useValue: serviceMock }],
+      providers: [{ provide: AuthTelegramService, useValue: serviceMock }],
     }).compile();
 
     controller = module.get<TelegramAuthController>(TelegramAuthController);
