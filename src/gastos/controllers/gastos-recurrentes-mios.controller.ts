@@ -1,23 +1,23 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { Autenticado } from '../../auth/decorators/autenticado.decorator.js';
 import { GetUser } from '../../auth/decorators/get-user.decorator.js';
-import { CreateGastoRecurrenteMioDto } from '../dto/create-gasto-recurrente-mio.dto.js';
+import * as DTO from '../dto/index.js';
 import { GastosService } from '../services/gastos.service.js';
 
-@Controller('gastos/recurrentes/mios')
+@nest.Controller('gastos/recurrentes/mios')
 @Autenticado()
 export class GastosRecurrentesMiosController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @Post()
+  @nest.Post()
   create(
     @GetUser('id') usuarioId: number,
-    @Body() dto: CreateGastoRecurrenteMioDto,
+    @nest.Body() dto: DTO.CreateGastoRecurrenteMioDto,
   ) {
     return this.gastosService.createRecurrente({ ...dto, usuarioId });
   }
 
-  @Get()
+  @nest.Get()
   findAll(@GetUser('id') usuarioId: number) {
     return this.gastosService.listRecurrentes(usuarioId);
   }

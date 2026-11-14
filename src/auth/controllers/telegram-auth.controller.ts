@@ -1,26 +1,25 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from '../services/auth.service.js';
-import { VincularTelegramDto } from '../dto/vincular-telegram.dto.js';
-import { RegisterTelegramDto } from '../dto/register-telegram.dto.js';
+import * as nest from '@nestjs/common';
+import { AuthTelegramService } from '../services/auth-telegram.service.js';
+import * as DTO from '../dto/index.js';
 
 /**
  * Flujos de autenticación que consume el bot de Telegram.
  * Se mantienen separados del login web para que cada controlador
  * tenga una única responsabilidad y un acoplamiento acotado.
  */
-@Controller('auth')
+@nest.Controller('auth')
 export class TelegramAuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authTelegram: AuthTelegramService) {}
 
   // Vincular un usuario existente de la Web con su Telegram
-  @Post('vincular-telegram')
-  vincularTelegram(@Body() dto: VincularTelegramDto) {
-    return this.authService.vincularTelegram(dto);
+  @nest.Post('vincular-telegram')
+  vincularTelegram(@nest.Body() dto: DTO.VincularTelegramDto) {
+    return this.authTelegram.vincularTelegram(dto);
   }
 
   // Registrar un nuevo usuario desde Telegram directamente
-  @Post('register-telegram')
-  registerTelegram(@Body() dto: RegisterTelegramDto) {
-    return this.authService.registerTelegram(dto);
+  @nest.Post('register-telegram')
+  registerTelegram(@nest.Body() dto: DTO.RegisterTelegramDto) {
+    return this.authTelegram.registerTelegram(dto);
   }
 }

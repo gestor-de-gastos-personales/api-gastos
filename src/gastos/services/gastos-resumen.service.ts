@@ -1,16 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
-import type {
-  GastoWhere,
-} from './gastos-consulta.service.js';
-import type {
-  GrupoResumen,
-  MayorGastoResumen,
-  OpcionesResumen,
-  ResumenGastos,
-} from '../gastos.types.js';
-import { resolverPeriodo } from '../utils/fechas.js';
+import type { GastoWhere } from './gastos-listado.service.js';
+import type * as tipos from '../gastos.types.js';
+import * as fechas from '../utils/fechas.js';
 
 interface GrupoCategoria {
   categoriaId: number;
@@ -33,7 +26,7 @@ function calcularPorcentaje(total: number, totalGeneral: number): number {
  * Cálculo de resúmenes por período: total, desglose por categoría y
  * gasto más grande del rango consultado.
  */
-@Injectable()
+@nest.Injectable()
 export class GastosResumenService {
   constructor(
     private readonly prisma: PrismaService,
@@ -53,7 +46,7 @@ export class GastosResumenService {
     grupo: GrupoCategoria,
     nombres: Map<number, string>,
     totalGeneral: number,
-  ): GrupoResumen {
+  ): tipos.GrupoResumen {
     const total = Number(grupo._sum?.monto || 0);
 
     return {
@@ -84,7 +77,7 @@ export class GastosResumenService {
   }
 
   /** Gasto de mayor monto del período; `null` cuando no hay gastos. */
-  private async buscarMayorGasto(where: GastoWhere): Promise<MayorGastoResumen | null> {
+  private async buscarMayorGasto(where: GastoWhere): Promise<tipos.MayorGastoResumen | null> {
     const gasto = await this.prisma.gasto.findFirst({
       where,
       include: { categoria: true },
@@ -117,12 +110,12 @@ export class GastosResumenService {
 
   async getResumen(
     usuarioIdentifier: number | string,
-    filtro: OpcionesResumen = {},
-  ): Promise<ResumenGastos> {
+    filtro: tipos.OpcionesResumen = {},
+  ): Promise<tipos.ResumenGastos> {
     const usuarioId = await this.usuarios.obtenerOCrearUsuarioId(
       usuarioIdentifier,
     );
-    const periodo = resolverPeriodo(filtro);
+    const periodo = fechas.resolverPeriodo(filtro);
     const categoriaId = await this.resolverFiltroCategoria(filtro.categoria);
 
     const where: GastoWhere = {

@@ -1,0 +1,11 @@
+export { CreateGastoBotDto } from './create-gasto-bot.dto.js';
+export { CreateGastoDto } from './create-gasto.dto.js';
+export { CreateGastoRecurrenteDto } from './create-gasto-recurrente.dto.js';
+export { CreateGastoRecurrenteMioDto } from './create-gasto-recurrente-mio.dto.js';
+export { FilterGastosDto } from './filter-gasto.dto.js';
+export { FilterResumenBotDto } from './filter-resumen-bot.dto.js';
+export { FilterResumenDto } from './filter-resumen.dto.js';
+export { FilterUltimosDto } from './filter-ultimos.dto.js';
+export { SerieQueryDto } from './serie-query.dto.js';
+export { UpdateGastoDto } from './update-gasto.dto.js';
+export { UpdateGastoRecurrenteDto } from './update-gasto-recurrente.dto.js';

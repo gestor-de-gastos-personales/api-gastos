@@ -1,13 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
-import { resolverPeriodo } from '../utils/fechas.js';
-import type { SerieQueryDto } from '../dto/serie-query.dto.js';
-import type {
-  AgrupacionSerie,
-  PuntoSerie,
-  SerieGastos,
-} from '../gastos.types.js';
+import * as fechas from '../utils/fechas.js';
+import type * as DTO from '../dto/index.js';
+import * as tipos from '../gastos.types.js';
 
 /** Tope de puntos para no generar series gigantes por pedidos accidentales. */
 const MAX_PUNTOS = 400;
@@ -26,14 +22,14 @@ function inicioSemana(fecha: Date): Date {
 }
 
 /** Clave estable de la agrupación: `YYYY-MM-DD`, `YYYY-MM` o lunes ISO. */
-function claveDe(fecha: Date, agrupacion: AgrupacionSerie): string {
+function claveDe(fecha: Date, agrupacion: tipos.AgrupacionSerie): string {
   if (agrupacion === 'mes') return fecha.toISOString().slice(0, 7);
   if (agrupacion === 'semana') return iso(inicioSemana(fecha));
   return iso(fecha);
 }
 
 /** Etiqueta legible para el eje del gráfico. */
-function etiquetaDe(clave: string, agrupacion: AgrupacionSerie): string {
+function etiquetaDe(clave: string, agrupacion: tipos.AgrupacionSerie): string {
   if (agrupacion === 'mes') {
     const [anio, mes] = clave.split('-');
     return `${mes}/${anio}`;
@@ -47,7 +43,7 @@ function etiquetaDe(clave: string, agrupacion: AgrupacionSerie): string {
 function generarClaves(
   desde: Date,
   hasta: Date,
-  agrupacion: AgrupacionSerie,
+  agrupacion: tipos.AgrupacionSerie,
 ): string[] {
   const claves: string[] = [];
   const cursor =
@@ -65,7 +61,7 @@ function generarClaves(
 
   while (cursor <= hasta) {
     if (claves.length >= MAX_PUNTOS) {
-      throw new BadRequestException(
+      throw new nest.BadRequestException(
         'El rango es demasiado grande: reducí las fechas o usá una agrupación mayor.',
       );
     }
@@ -84,7 +80,7 @@ function generarClaves(
  * Serie temporal de gastos por día, semana o mes.
  * Alimenta el gráfico de evolución del dashboard web.
  */
-@Injectable()
+@nest.Injectable()
 export class GastosSerieService {
   constructor(
     private readonly prisma: PrismaService,
@@ -93,11 +89,11 @@ export class GastosSerieService {
 
   async getSerie(
     usuarioIdentifier: number | string,
-    filtro: SerieQueryDto = {},
-  ): Promise<SerieGastos> {
+    filtro: DTO.SerieQueryDto = {},
+  ): Promise<tipos.SerieGastos> {
     const usuarioId =
       await this.usuarios.obtenerOCrearUsuarioId(usuarioIdentifier);
-    const periodo = resolverPeriodo({
+    const periodo = fechas.resolverPeriodo({
       desde: filtro.desde,
       hasta: filtro.hasta,
     });
@@ -122,7 +118,7 @@ export class GastosSerieService {
       acumulado.set(clave, (acumulado.get(clave) ?? 0) + Number(gasto.monto));
     }
 
-    const puntos: PuntoSerie[] = claves.map((clave) => ({
+    const puntos: tipos.PuntoSerie[] = claves.map((clave) => ({
       clave,
       etiqueta: etiquetaDe(clave, agrupacion),
       total: redondear(acumulado.get(clave) ?? 0),

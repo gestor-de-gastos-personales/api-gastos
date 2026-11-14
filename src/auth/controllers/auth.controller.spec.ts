@@ -1,22 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller.js';
-import { AuthService } from '../services/auth.service.js';
+import { AuthRegistroService } from '../services/auth-registro.service.js';
+import { AuthLoginService } from '../services/auth-login.service.js';
+import { AuthPerfilService } from '../services/auth-perfil.service.js';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
-  const serviceMock = {
-    register: vi.fn(),
-    login: vi.fn(),
-    perfil: vi.fn(),
-  };
+  const registroMock = { register: vi.fn() };
+  const loginMock = { login: vi.fn() };
+  const perfilMock = { perfil: vi.fn() };
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [{ provide: AuthService, useValue: serviceMock }],
+      providers: [
+        { provide: AuthRegistroService, useValue: registroMock },
+        { provide: AuthLoginService, useValue: loginMock },
+        { provide: AuthPerfilService, useValue: perfilMock },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -24,29 +28,29 @@ describe('AuthController', () => {
 
   it('delega el registro', async () => {
     const dto = { email: 'ana@mail.com', password: '123456', nombre: 'Ana' };
-    serviceMock.register.mockResolvedValue({ id: 1 });
+    registroMock.register.mockResolvedValue({ id: 1 });
 
     await expect(controller.register(dto)).resolves.toEqual({ id: 1 });
-    expect(serviceMock.register).toHaveBeenCalledWith(dto);
+    expect(registroMock.register).toHaveBeenCalledWith(dto);
   });
 
   it('delega el login', async () => {
     const dto = { email: 'ana@mail.com', password: '123456' };
-    serviceMock.login.mockResolvedValue({ access_token: 'jwt' });
+    loginMock.login.mockResolvedValue({ access_token: 'jwt' });
 
     await expect(controller.login(dto)).resolves.toEqual({
       access_token: 'jwt',
     });
-    expect(serviceMock.login).toHaveBeenCalledWith(dto);
+    expect(loginMock.login).toHaveBeenCalledWith(dto);
   });
 
   it('devuelve el perfil del usuario autenticado', async () => {
-    serviceMock.perfil.mockResolvedValue({ id: 7, email: 'ana@mail.com' });
+    perfilMock.perfil.mockResolvedValue({ id: 7, email: 'ana@mail.com' });
 
     await expect(controller.me(7)).resolves.toEqual({
       id: 7,
       email: 'ana@mail.com',
     });
-    expect(serviceMock.perfil).toHaveBeenCalledWith(7);
+    expect(perfilMock.perfil).toHaveBeenCalledWith(7);
   });
 });

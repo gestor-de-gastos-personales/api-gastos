@@ -1,28 +1,23 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './services/auth.service.js';
-import { AuthController } from './controllers/auth.controller.js';
-import { TelegramAuthController } from './controllers/telegram-auth.controller.js';
+import * as nest from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from '../prisma/prisma.module.js';
-import { JwtStrategy } from './strategies/jwt.strategy.js';
-import { OPCIONES_JWT, leerJwtSecret } from './jwt.config.js';
+import * as jwtConfig from './jwt.config.js';
+import { AUTH_CONTROLLERS, AUTH_PROVIDERS } from './auth.providers.js';
 
-@Module({
+@nest.Module({
   imports: [
     PrismaModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    // `registerAsync` difiere la lectura del secreto al arranque del módulo,
-    // así los tests unitarios no dependen de tener JWT_SECRET definido.
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: leerJwtSecret(),
-        signOptions: OPCIONES_JWT,
+        secret: jwtConfig.leerJwtSecret(),
+        signOptions: jwtConfig.OPCIONES_JWT,
       }),
     }),
   ],
-  controllers: [AuthController, TelegramAuthController],
-  providers: [AuthService, JwtStrategy],
+  controllers: AUTH_CONTROLLERS,
+  providers: AUTH_PROVIDERS,
   exports: [JwtModule, PassportModule],
 })
 export class AuthModule {}

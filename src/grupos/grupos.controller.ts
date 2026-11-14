@@ -1,24 +1,23 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { GruposService } from './grupos.service.js';
-import { CreateGrupoDto } from './dto/create-grupo.dto.js';
-import { UnirseGrupoDto } from './dto/unirse-grupo.dto.js';
+import * as DTO from './dto/index.js';
 
-@Controller('grupos')
+@nest.Controller('grupos')
 export class GruposController {
   constructor(private readonly gruposService: GruposService) {}
 
-  @Get()
-  listar(@Query('telegramId') telegramId?: string) {
+  @nest.Get()
+  listar(@nest.Query('telegramId') telegramId?: string) {
     return this.gruposService.listar(telegramId ?? '');
   }
 
-  @Post()
-  crear(@Body() dto: CreateGrupoDto) {
+  @nest.Post()
+  crear(@nest.Body() dto: DTO.CreateGrupoDto) {
     return this.gruposService.crear(dto);
   }
 
-  @Post('unirse')
-  unirse(@Body() dto: UnirseGrupoDto) {
+  @nest.Post('unirse')
+  unirse(@nest.Body() dto: DTO.UnirseGrupoDto) {
     return this.gruposService.unirse(dto);
   }
 }

@@ -5,7 +5,10 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { AuthService } from './auth.service.js';
+import { AuthRegistroService } from './auth-registro.service.js';
+import { AuthLoginService } from './auth-login.service.js';
+import { AuthPerfilService } from './auth-perfil.service.js';
+import { AuthTelegramService } from './auth-telegram.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 vi.mock('bcrypt', () => ({
@@ -15,8 +18,11 @@ vi.mock('bcrypt', () => ({
   ),
 }));
 
-describe('AuthService', () => {
-  let service: AuthService;
+describe('Auth services', () => {
+  let registro: AuthRegistroService;
+  let login: AuthLoginService;
+  let perfil: AuthPerfilService;
+  let telegram: AuthTelegramService;
 
   const prismaMock = {
     usuario: {
@@ -36,13 +42,19 @@ describe('AuthService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AuthService,
+        AuthRegistroService,
+        AuthLoginService,
+        AuthPerfilService,
+        AuthTelegramService,
         { provide: PrismaService, useValue: prismaMock },
         { provide: JwtService, useValue: jwtMock },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    registro = module.get<AuthRegistroService>(AuthRegistroService);
+    login = module.get<AuthLoginService>(AuthLoginService);
+    perfil = module.get<AuthPerfilService>(AuthPerfilService);
+    telegram = module.get<AuthTelegramService>(AuthTelegramService);
   });
 
   describe('register', () => {
@@ -55,7 +67,7 @@ describe('AuthService', () => {
         password: 'h:clave',
       });
 
-      const resultado = await service.register({
+      const resultado = await registro.register({
         email: 'ana@mail.com',
         password: 'clave',
         nombre: 'Ana',
@@ -80,7 +92,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue({ id: 1 });
 
       await expect(
-        service.register({
+        registro.register({
           email: 'ana@mail.com',
           password: 'clave',
           nombre: 'Ana',
@@ -99,7 +111,7 @@ describe('AuthService', () => {
       });
       jwtMock.signAsync.mockResolvedValue('jwt');
 
-      const resultado = await service.login({
+      const resultado = await login.login({
         email: 'ana@mail.com',
         password: 'clave',
       });
@@ -115,7 +127,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.login({ email: 'nadie@mail.com', password: 'clave' }),
+        login.login({ email: 'nadie@mail.com', password: 'clave' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -127,7 +139,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.login({ email: 'ana@mail.com', password: 'clave' }),
+        login.login({ email: 'ana@mail.com', password: 'clave' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
@@ -139,7 +151,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.login({ email: 'ana@mail.com', password: 'otra' }),
+        login.login({ email: 'ana@mail.com', password: 'otra' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
       expect(jwtMock.signAsync).not.toHaveBeenCalled();
     });
@@ -159,7 +171,7 @@ describe('AuthService', () => {
         telegramId: '555',
       });
 
-      const resultado = await service.vincularTelegram({
+      const resultado = await telegram.vincularTelegram({
         email: 'ana@mail.com',
         password: 'clave',
         telegramId: '555',
@@ -179,7 +191,7 @@ describe('AuthService', () => {
       });
 
       await expect(
-        service.vincularTelegram({
+        telegram.vincularTelegram({
           email: 'ana@mail.com',
           password: 'otra',
           telegramId: '555',
@@ -195,7 +207,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findFirst.mockResolvedValue({ id: 2 });
 
       await expect(
-        service.vincularTelegram({
+        telegram.vincularTelegram({
           email: 'ana@mail.com',
           password: 'clave',
           telegramId: '555',
@@ -216,7 +228,7 @@ describe('AuthService', () => {
         telegramId: '777',
       });
 
-      const resultado = await service.registerTelegram({
+      const resultado = await telegram.registerTelegram({
         email: 'bot@mail.com',
         password: 'clave',
         telegramId: '777',
@@ -237,7 +249,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findUnique.mockResolvedValue({ id: 1 });
 
       await expect(
-        service.registerTelegram({
+        telegram.registerTelegram({
           email: 'bot@mail.com',
           password: 'clave',
           telegramId: '777',
@@ -250,7 +262,7 @@ describe('AuthService', () => {
       prismaMock.usuario.findFirst.mockResolvedValue({ id: 1 });
 
       await expect(
-        service.registerTelegram({
+        telegram.registerTelegram({
           email: 'bot@mail.com',
           password: 'clave',
           telegramId: '777',
@@ -270,24 +282,24 @@ describe('AuthService', () => {
         password: 'h:clave',
       });
 
-      const perfil = await service.perfil(7);
+      const resultado = await perfil.perfil(7);
 
       expect(prismaMock.usuario.findUnique).toHaveBeenCalledWith({
         where: { id: 7 },
       });
-      expect(perfil).toEqual({
+      expect(resultado).toEqual({
         id: 7,
         email: 'ana@mail.com',
         nombre: 'Ana',
         telegramId: '777',
       });
-      expect(perfil).not.toHaveProperty('password');
+      expect(resultado).not.toHaveProperty('password');
     });
 
     it('rechaza un usuario inexistente', async () => {
       prismaMock.usuario.findUnique.mockResolvedValue(null);
 
-      await expect(service.perfil(99)).rejects.toBeInstanceOf(
+      await expect(perfil.perfil(99)).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
     });

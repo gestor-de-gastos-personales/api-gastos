@@ -1,19 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { GastosConsultaService } from './gastos-consulta.service.js';
+import * as nest from '@nestjs/common';
+import { GastosListadoService } from './gastos-listado.service.js';
+import { GastosUltimosService } from './gastos-ultimos.service.js';
 import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 
-/**
- * Contenedor de dependencias de la fachada de gastos.
- *
- * Agrupa los servicios especializados para que `GastosService` dependa de una
- * única pieza y su cohesión no se diluya entre cuatro colaboradores.
- */
-@Injectable()
+/** Contenedor de dependencias de la fachada de gastos. */
+@nest.Injectable()
 export class GastosDeps {
   constructor(
-    readonly consulta: GastosConsultaService,
+    readonly listado: GastosListadoService,
+    readonly ultimos: GastosUltimosService,
     readonly escritura: GastosEscrituraService,
     readonly resumen: GastosResumenService,
     readonly recurrentes: GastosRecurrentesService,

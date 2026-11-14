@@ -1,19 +1,18 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import * as nest from '@nestjs/common';
 import { PresupuestosService } from './presupuestos.service.js';
-import { CreatePresupuestoDto } from './dto/create-presupuesto.dto.js';
-import { PresupuestoMioDto } from './dto/presupuesto-mio.dto.js';
+import * as DTO from './dto/index.js';
 import { Autenticado } from '../auth/decorators/autenticado.decorator.js';
 import { GetUser } from '../auth/decorators/get-user.decorator.js';
 
-@Controller('presupuestos')
+@nest.Controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestosService: PresupuestosService) {}
 
-  @Get()
+  @nest.Get()
   listar(
-    @Query('telegramId') telegramId?: string,
-    @Query('mes') mes?: string,
-    @Query('anio') anio?: string,
+    @nest.Query('telegramId') telegramId?: string,
+    @nest.Query('mes') mes?: string,
+    @nest.Query('anio') anio?: string,
   ) {
     return this.presupuestosService.listar(
       telegramId ?? '',
@@ -22,18 +21,18 @@ export class PresupuestosController {
     );
   }
 
-  @Post()
-  guardar(@Body() dto: CreatePresupuestoDto) {
+  @nest.Post()
+  guardar(@nest.Body() dto: DTO.CreatePresupuestoDto) {
     return this.presupuestosService.guardar(dto);
   }
 
   /** Presupuestos del usuario autenticado (web). */
-  @Get('mios')
+  @nest.Get('mios')
   @Autenticado()
   listarMios(
     @GetUser('id') usuarioId: number,
-    @Query('mes') mes?: string,
-    @Query('anio') anio?: string,
+    @nest.Query('mes') mes?: string,
+    @nest.Query('anio') anio?: string,
   ) {
     return this.presupuestosService.listarPorUsuario(
       usuarioId,
@@ -42,11 +41,11 @@ export class PresupuestosController {
     );
   }
 
-  @Post('mios')
+  @nest.Post('mios')
   @Autenticado()
   guardarMio(
     @GetUser('id') usuarioId: number,
-    @Body() dto: PresupuestoMioDto,
+    @nest.Body() dto: DTO.PresupuestoMioDto,
   ) {
     return this.presupuestosService.guardarParaUsuario(usuarioId, dto);
   }

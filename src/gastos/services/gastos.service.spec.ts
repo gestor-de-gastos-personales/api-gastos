@@ -2,7 +2,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosService } from './gastos.service.js';
 import { GastosDeps } from './gastos-deps.js';
-import { GastosConsultaService } from './gastos-consulta.service.js';
+import { GastosListadoService } from './gastos-listado.service.js';
+import { GastosUltimosService } from './gastos-ultimos.service.js';
 import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
@@ -46,7 +47,8 @@ describe('GastosService', () => {
       providers: [
         GastosService,
         GastosDeps,
-        GastosConsultaService,
+        GastosListadoService,
+        GastosUltimosService,
         GastosEscrituraService,
         GastosResumenService,
         GastosRecurrentesService,
