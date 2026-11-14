@@ -1,6 +1,7 @@
 import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import type { GastoWhere } from './gastos-listado.service.js';
 import type * as tipos from '../gastos.types.js';
 import * as fechas from '../utils/fechas.js';
@@ -31,6 +32,7 @@ export class GastosResumenService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
+    private readonly categorias: CategoriasResolverService,
   ) {}
 
   private async obtenerNombresCategorias(ids: number[]) {
@@ -103,7 +105,7 @@ export class GastosResumenService {
   ): Promise<number | undefined> {
     if (!categoria) return undefined;
 
-    const encontrada = await this.usuarios.buscarCategoriaPorNombre(categoria);
+    const encontrada = await this.categorias.buscarCategoriaPorNombre(categoria);
     // Categoría inexistente: se fuerza un id imposible para devolver vacío.
     return encontrada ? encontrada.id : -1;
   }

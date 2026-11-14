@@ -1,6 +1,7 @@
 import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { GastosListadoService } from './gastos-listado.service.js';
 import type * as tipos from '../gastos.types.js';
 import * as fechas from '../utils/fechas.js';
@@ -29,6 +30,7 @@ export class GastosEscrituraService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
+    private readonly categorias: CategoriasResolverService,
     private readonly consulta: GastosListadoService,
   ) {}
 
@@ -37,7 +39,7 @@ export class GastosEscrituraService {
       usuarioIdentifier,
       dto.telegramId,
     );
-    const categoriaId = await this.usuarios.resolverCategoriaId(
+    const categoriaId = await this.categorias.resolverCategoriaId(
       resolverCategoria(dto),
     );
 
@@ -63,7 +65,7 @@ export class GastosEscrituraService {
     const categoriaInput = resolverCategoria(dto);
     const categoriaId =
       categoriaInput !== undefined && categoriaInput !== null
-        ? await this.usuarios.resolverCategoriaId(categoriaInput)
+        ? await this.categorias.resolverCategoriaId(categoriaInput)
         : undefined;
 
     const descripcion =

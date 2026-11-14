@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('GastosRecurrentesService', () => {
@@ -38,6 +39,7 @@ describe('GastosRecurrentesService', () => {
       providers: [
         GastosRecurrentesService,
         UsuariosGastosService,
+        CategoriasResolverService,
         { provide: PrismaService, useValue: prismaMock },
       ],
     }).compile();

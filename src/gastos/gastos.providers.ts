@@ -13,6 +13,7 @@ export const GASTOS_PROVIDERS = [
   servicios.GastosRecurrentesService,
   servicios.GastosSerieService,
   servicios.UsuariosGastosService,
+  servicios.CategoriasResolverService,
   GastosRecurrentesScheduler,
 ];
 

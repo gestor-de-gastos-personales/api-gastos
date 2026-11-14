@@ -1,6 +1,7 @@
 import * as nest from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import type { FilterUltimosDto } from '../dto/filter-ultimos.dto.js';
 import type { OpcionesResumen } from '../gastos.types.js';
 import * as fechas from '../utils/fechas.js';
@@ -25,6 +26,7 @@ export class GastosUltimosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
+    private readonly categorias: CategoriasResolverService,
   ) {}
 
   /**
@@ -87,7 +89,7 @@ export class GastosUltimosService {
     }
 
     if (filtro.categoria) {
-      const categoria = await this.usuarios.buscarCategoriaPorNombre(
+      const categoria = await this.categorias.buscarCategoriaPorNombre(
         filtro.categoria,
       );
       // Categoría inexistente: no hay resultados posibles, se filtra por -1.
@@ -122,7 +124,7 @@ export class GastosUltimosService {
     }
 
     if (dto.categoria) {
-      const categoria = await this.usuarios.buscarCategoriaPorNombre(
+      const categoria = await this.categorias.buscarCategoriaPorNombre(
         dto.categoria,
       );
       if (categoria) where.categoriaId = categoria.id;

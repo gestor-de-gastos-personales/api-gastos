@@ -8,6 +8,7 @@ import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('GastosService', () => {
@@ -53,6 +54,7 @@ describe('GastosService', () => {
         GastosResumenService,
         GastosRecurrentesService,
         UsuariosGastosService,
+        CategoriasResolverService,
         { provide: PrismaService, useValue: prismaMock },
       ],
     }).compile();

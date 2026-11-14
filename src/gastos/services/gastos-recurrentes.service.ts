@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
+import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { CreateGastoRecurrenteDto } from '../dto/create-gasto-recurrente.dto.js';
 import { UpdateGastoRecurrenteDto } from '../dto/update-gasto-recurrente.dto.js';
 
@@ -26,6 +27,7 @@ export class GastosRecurrentesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usuarios: UsuariosGastosService,
+    private readonly categorias: CategoriasResolverService,
   ) {}
 
   /** Calcula la próxima fecha de ejecución según la frecuencia. */
@@ -69,7 +71,7 @@ export class GastosRecurrentesService {
     );
     const categoriaId = dto.categoriaId
       ? dto.categoriaId
-      : await this.usuarios.resolverCategoriaId(dto.categoria);
+      : await this.categorias.resolverCategoriaId(dto.categoria);
 
     return this.prisma.gastoRecurrente.create({
       data: {
@@ -130,7 +132,7 @@ export class GastosRecurrentesService {
     categoriaActual: number,
   ): Promise<number> {
     if (dto.categoriaId) return dto.categoriaId;
-    if (dto.categoria) return this.usuarios.resolverCategoriaId(dto.categoria);
+    if (dto.categoria) return this.categorias.resolverCategoriaId(dto.categoria);
     return categoriaActual;
   }
 

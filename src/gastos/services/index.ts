@@ -7,3 +7,4 @@ export { GastosResumenService } from './gastos-resumen.service.js';
 export { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 export { GastosSerieService } from './gastos-serie.service.js';
 export { UsuariosGastosService } from './usuarios-gastos.service.js';
+export { CategoriasResolverService } from './categorias-resolver.service.js';
