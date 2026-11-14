@@ -84,7 +84,7 @@ export class GastosService {
   }
 
   getRecurrentesVencidas() {
-    return this.deps.recurrentes.getRecurrentesVencidas();
+    return this.deps.ejecucion.getRecurrentesVencidas();
   }
 
   updateRecurrente(
@@ -114,14 +114,14 @@ export class GastosService {
   }
 
   ejecutarRecurrente(reglaId: number) {
-    return this.deps.recurrentes.ejecutarRecurrente(reglaId);
+    return this.deps.ejecucion.ejecutarRecurrente(reglaId);
   }
 
   ejecutarVencidas() {
-    return this.deps.recurrentes.ejecutarVencidas();
+    return this.deps.ejecucion.ejecutarVencidas();
   }
 
   obtenerYMarcarNotificaciones() {
-    return this.deps.recurrentes.obtenerYMarcarNotificaciones();
+    return this.deps.ejecucion.obtenerYMarcarNotificaciones();
   }
 }

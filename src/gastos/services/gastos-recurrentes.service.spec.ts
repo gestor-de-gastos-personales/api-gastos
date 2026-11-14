@@ -1,12 +1,16 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
+import { GastosRecurrentesEjecucionService } from './gastos-recurrentes-ejecucion.service.js';
+import { RecurrenciaCalendarioService } from './recurrencia-calendario.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('GastosRecurrentesService', () => {
   let service: GastosRecurrentesService;
+  let ejecucion: GastosRecurrentesEjecucionService;
+  let calendario: RecurrenciaCalendarioService;
 
   const prismaMock = {
     usuario: {
@@ -38,6 +42,8 @@ describe('GastosRecurrentesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GastosRecurrentesService,
+        GastosRecurrentesEjecucionService,
+        RecurrenciaCalendarioService,
         UsuariosGastosService,
         CategoriasResolverService,
         { provide: PrismaService, useValue: prismaMock },
@@ -45,6 +51,8 @@ describe('GastosRecurrentesService', () => {
     }).compile();
 
     service = module.get(GastosRecurrentesService);
+    ejecucion = module.get(GastosRecurrentesEjecucionService);
+    calendario = module.get(RecurrenciaCalendarioService);
   });
 
   afterEach(() => {
@@ -56,7 +64,7 @@ describe('GastosRecurrentesService', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
 
-      const siguiente = service.calcularProximaEjecucion('DIARIA');
+      const siguiente = calendario.calcularProximaEjecucion('DIARIA');
 
       expect(siguiente.toISOString()).toBe('2026-10-23T12:00:00.000Z');
     });
@@ -66,7 +74,7 @@ describe('GastosRecurrentesService', () => {
       // 2026-10-22 es jueves (4); se pide lunes (1) → faltan 4 días.
       vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
 
-      const siguiente = service.calcularProximaEjecucion('SEMANAL', undefined, 1);
+      const siguiente = calendario.calcularProximaEjecucion('SEMANAL', undefined, 1);
 
       expect(siguiente.toISOString()).toBe('2026-10-26T12:00:00.000Z');
     });
@@ -75,7 +83,7 @@ describe('GastosRecurrentesService', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
 
-      const siguiente = service.calcularProximaEjecucion('SEMANAL', undefined, 4);
+      const siguiente = calendario.calcularProximaEjecucion('SEMANAL', undefined, 4);
 
       expect(siguiente.toISOString()).toBe('2026-10-29T12:00:00.000Z');
     });
@@ -84,7 +92,7 @@ describe('GastosRecurrentesService', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
 
-      const siguiente = service.calcularProximaEjecucion('MENSUAL', 15);
+      const siguiente = calendario.calcularProximaEjecucion('MENSUAL', 15);
 
       expect(siguiente.toISOString()).toBe('2026-11-15T00:00:00.000Z');
     });
@@ -93,7 +101,7 @@ describe('GastosRecurrentesService', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-10-22T12:00:00.000Z'));
 
-      const siguiente = service.calcularProximaEjecucion('ANUAL');
+      const siguiente = calendario.calcularProximaEjecucion('ANUAL');
 
       expect(siguiente.toISOString()).toBe('2027-10-22T00:00:00.000Z');
     });
@@ -167,7 +175,7 @@ describe('GastosRecurrentesService', () => {
     it('busca solo reglas activas con próxima ejecución vencida', async () => {
       prismaMock.gastoRecurrente.findMany.mockResolvedValue([]);
 
-      await service.getRecurrentesVencidas();
+      await ejecucion.getRecurrentesVencidas();
 
       expect(prismaMock.gastoRecurrente.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -267,14 +275,14 @@ describe('GastosRecurrentesService', () => {
         activo: false,
       });
 
-      await expect(service.ejecutarRecurrente(4)).resolves.toBeNull();
+      await expect(ejecucion.ejecutarRecurrente(4)).resolves.toBeNull();
       expect(prismaMock.gasto.create).not.toHaveBeenCalled();
     });
 
     it('no ejecuta reglas inexistentes', async () => {
       prismaMock.gastoRecurrente.findUnique.mockResolvedValue(null);
 
-      await expect(service.ejecutarRecurrente(99)).resolves.toBeNull();
+      await expect(ejecucion.ejecutarRecurrente(99)).resolves.toBeNull();
     });
 
     it('crea el gasto y reprograma la regla', async () => {
@@ -292,7 +300,7 @@ describe('GastosRecurrentesService', () => {
       prismaMock.gasto.create.mockResolvedValue({ id: 10 });
       prismaMock.gastoRecurrente.update.mockResolvedValue({ id: 4 });
 
-      const gasto = await service.ejecutarRecurrente(4);
+      const gasto = await ejecucion.ejecutarRecurrente(4);
 
       expect(gasto).toEqual({ id: 10 });
       expect(prismaMock.gastoRecurrente.update).toHaveBeenCalledWith(
@@ -334,7 +342,7 @@ describe('GastosRecurrentesService', () => {
         });
       prismaMock.gasto.create.mockResolvedValue({ id: 11 });
 
-      const ejecutadas = await service.ejecutarVencidas();
+      const ejecutadas = await ejecucion.ejecutarVencidas();
 
       expect(ejecutadas).toHaveLength(1);
       expect(prismaMock.gasto.create).toHaveBeenCalledTimes(1);
@@ -345,7 +353,7 @@ describe('GastosRecurrentesService', () => {
     it('devuelve vacío cuando no hay pendientes', async () => {
       prismaMock.gastoRecurrente.findMany.mockResolvedValue([]);
 
-      await expect(service.obtenerYMarcarNotificaciones()).resolves.toEqual([]);
+      await expect(ejecucion.obtenerYMarcarNotificaciones()).resolves.toEqual([]);
       expect(prismaMock.gastoRecurrente.updateMany).not.toHaveBeenCalled();
     });
 
@@ -361,7 +369,7 @@ describe('GastosRecurrentesService', () => {
       ]);
       prismaMock.gastoRecurrente.updateMany.mockResolvedValue({ count: 1 });
 
-      const avisos = await service.obtenerYMarcarNotificaciones();
+      const avisos = await ejecucion.obtenerYMarcarNotificaciones();
 
       expect(avisos).toEqual([
         {

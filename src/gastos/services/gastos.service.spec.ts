@@ -9,6 +9,8 @@ import { GastosResumenService } from './gastos-resumen.service.js';
 import { ResumenAgrupadoService } from './resumen-agrupado.service.js';
 import { ResumenMayorGastoService } from './resumen-mayor-gasto.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
+import { GastosRecurrentesEjecucionService } from './gastos-recurrentes-ejecucion.service.js';
+import { RecurrenciaCalendarioService } from './recurrencia-calendario.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -57,6 +59,8 @@ describe('GastosService', () => {
         ResumenAgrupadoService,
         ResumenMayorGastoService,
         GastosRecurrentesService,
+        GastosRecurrentesEjecucionService,
+        RecurrenciaCalendarioService,
         UsuariosGastosService,
         CategoriasResolverService,
         { provide: PrismaService, useValue: prismaMock },
