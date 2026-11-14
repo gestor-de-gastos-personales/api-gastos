@@ -4,6 +4,8 @@ export { GastosListadoService } from './gastos-listado.service.js';
 export { GastosUltimosService } from './gastos-ultimos.service.js';
 export { GastosEscrituraService } from './gastos-escritura.service.js';
 export { GastosResumenService } from './gastos-resumen.service.js';
+export { ResumenAgrupadoService } from './resumen-agrupado.service.js';
+export { ResumenMayorGastoService } from './resumen-mayor-gasto.service.js';
 export { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 export { GastosSerieService } from './gastos-serie.service.js';
 export { UsuariosGastosService } from './usuarios-gastos.service.js';

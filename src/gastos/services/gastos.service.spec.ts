@@ -6,6 +6,8 @@ import { GastosListadoService } from './gastos-listado.service.js';
 import { GastosUltimosService } from './gastos-ultimos.service.js';
 import { GastosEscrituraService } from './gastos-escritura.service.js';
 import { GastosResumenService } from './gastos-resumen.service.js';
+import { ResumenAgrupadoService } from './resumen-agrupado.service.js';
+import { ResumenMayorGastoService } from './resumen-mayor-gasto.service.js';
 import { GastosRecurrentesService } from './gastos-recurrentes.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
@@ -52,6 +54,8 @@ describe('GastosService', () => {
         GastosUltimosService,
         GastosEscrituraService,
         GastosResumenService,
+        ResumenAgrupadoService,
+        ResumenMayorGastoService,
         GastosRecurrentesService,
         UsuariosGastosService,
         CategoriasResolverService,

@@ -10,6 +10,8 @@ export const GASTOS_PROVIDERS = [
   servicios.GastosUltimosService,
   servicios.GastosEscrituraService,
   servicios.GastosResumenService,
+  servicios.ResumenAgrupadoService,
+  servicios.ResumenMayorGastoService,
   servicios.GastosRecurrentesService,
   servicios.GastosSerieService,
   servicios.UsuariosGastosService,
