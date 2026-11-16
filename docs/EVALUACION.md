@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación III (RepoSense + análisis de calidad + constancia). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-14.
+> Generado: 2026-11-16.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
 | Tipo de proyecto | backend |
-| Índice de calidad de servicios | **28/100** (mínimo 50) |
-| Criterios cumplidos | **12/15** |
+| Índice de calidad de servicios | **31/100** (mínimo 50) |
+| Criterios cumplidos | **13/15** |
 | Aprobado (semáforo) | **NO** |
-| Código (LOC) | 3,148 |
-| Archivos de código | 85 |
+| Código (LOC) | 3,313 |
+| Archivos de código | 108 |
 | Tests (archivos) | 27 |
-| Cobertura de líneas | 88.2% (mínimo 80%) |
+| Cobertura de líneas | 88.3% (mínimo 80%) |
 | Capas detectadas | presentacion, logica, datos |
 | Pushes directos a `main` (sin PR) | 0 |
 
@@ -26,7 +26,7 @@
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| blevatino | 43 | 3,835 | 2,883 | 43 | 19 | 100% |
+| blevatino | 47 | 4,019 | 2,921 | 43 | 20 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
@@ -36,7 +36,7 @@
 
 | Alumno | Sesiones | Cumplimiento | Pausa | Recencia | IC | Nivel | Para subir de nivel |
 |---|--:|--:|--:|--:|--:|--|--|
-| blevatino | 18 | 68% | 19 d | 93% | **58** | Aprueba | Cumplimiento 68% (mín. 100%); Pausa 19 d (máx. 5 d) |
+| blevatino | 19 | 70% | 19 d | 86% | **58** | Aprueba | Cumplimiento 70% (mín. 100%); Pausa 19 d (máx. 5 d) |
 
 > Para aprobar el IC: **2 sesiones por semana** sostenidas, sin pausas mayores a **10 días** y con actividad en las **últimas 2 semanas**. Se excluyen merges, bots y al docente. Zona horaria UTC-3.
 
@@ -48,7 +48,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Un resumen numérico (0-100) que combina todas las señales y métricas del análisis, con topes duros por duplicación.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **28/100** _(mínimo 50)_
+- **Tu resultado:** índice **31/100** _(mínimo 50)_
 - **Para investigar la causa:**
     - ¿En qué momento del proyecto se concentraron los problemas (arranque, integración de partes, cierre)?
     - ¿El índice bajó por muchas señales chicas o por una o dos graves?
@@ -58,7 +58,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de bloques de código repetidos (similitud) en el repositorio.
 - **Por qué importa:** Cada copia se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **6.3%** de duplicación _(máximo 15%)_
+- **Tu resultado:** **5.1%** de duplicación _(máximo 15%)_
 
 ### 3. Secretos hardcodeados (SEC) — OK
 
@@ -102,21 +102,17 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Son difíciles de leer, probar y reutilizar, y sus cambios tienen efectos inesperados.
 - **Tu resultado:** **0** componente(s) demasiado grande(s) _(máximo 1)_
 
-### 10. Baja cohesión (Coh) — A REVISAR
+### 10. Baja cohesión (Coh) — OK
 
 - **Qué mide:** Una clase o unidad cuyos métodos y campos no están relacionados entre sí.
 - **Por qué importa:** Una unidad que cambia por motivos distintos es frágil y cuesta entenderla.
-- **Tu resultado:** **2** unidad(es) con baja cohesión _(máximo 0)_
-- **Para investigar la causa:**
-    - ¿La unidad agrupa cosas que en realidad pertenecen a lugares distintos?
-    - ¿Cambia por motivos diferentes según la tarea?
-    - ¿Se pensó su responsabilidad antes de escribirla, o se fue agregando?
+- **Tu resultado:** **0** unidad(es) con baja cohesión _(máximo 0)_
 
 ### 11. Complejidad alta (Compl) — OK
 
 - **Qué mide:** Complejidad ciclomática: cantidad de caminos posibles dentro de una función (condicionales, bucles, casos).
 - **Por qué importa:** Muchos caminos = difícil de seguir y de probar; suelen esconderse casos sin cubrir.
-- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3148 LOC))_
+- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3313 LOC))_
 
 ### 12. Funciones/métodos largos o con muchos parámetros (Tam) — OK
 
@@ -128,7 +124,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Cuánto depende una unidad de las partes internas de otra.
 - **Por qué importa:** Piezas muy enlazadas hacen que un cambio se propague y que sea difícil reemplazar partes.
-- **Tu resultado:** **17** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
+- **Tu resultado:** **18** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
 - **Para investigar la causa:**
     - ¿Las piezas se conocen en detalle entre sí (acceden a campos o estructuras internas)?
     - ¿El acceso a datos ocurre desde lugares que no son los responsables?
@@ -138,7 +134,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de líneas de código ejecutadas por la suite de tests (cobertura real, no cantidad de archivos de test).
 - **Por qué importa:** Un test que existe pero no ejecuta el código no protege de nada: la cobertura muestra qué partes quedan sin verificar.
-- **Tu resultado:** **88.2%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
+- **Tu resultado:** **88.3%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
 
 ### 15. Endpoints del backend (EP) — OK
 
@@ -152,9 +148,8 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 
 | Criterio | Resultado actual | Meta | Brecha | Cómo alcanzarlo |
 |---|---|---|---|---|
-| Índice de calidad de servicios (indice) | índice **28/100** | mínimo 50 | faltan 22 pts | El índice sólo penaliza lo que **excede** los umbrales de cada criterio: si tenés todo en verde, el índice es 100. Si está en rojo, mirá la columna **Brecha** y los criterios en rojo; corregí primero duplicación, SEC, SQL y capas. Meta del perfil exigente: ≥50. |
-| Baja cohesión (Coh) | **2** unidad(es) con baja cohesión | máximo 0 | 2 clase(s) a separar | Separá la clase en unidades con una sola responsabilidad: si los métodos cambian por motivos distintos, son clases distintas. Meta: 0 clases con baja cohesión. |
-| Acoplamiento alto (Acop) | **17** unidad(es) con acoplamiento alto | máximo 2 por 1000 LOC | 17 hallazgo(s); el máximo para 3,148 LOC es 6.3 | Hacé que cada unidad dependa de una interfaz o de un módulo de servicio, no de los detalles internos de otra; evitá acceder a campos ajenos. Meta: ≤2 por 1000 LOC. |
+| Índice de calidad de servicios (indice) | índice **31/100** | mínimo 50 | faltan 19 pts | El índice sólo penaliza lo que **excede** los umbrales de cada criterio: si tenés todo en verde, el índice es 100. Si está en rojo, mirá la columna **Brecha** y los criterios en rojo; corregí primero duplicación, SEC, SQL y capas. Meta del perfil exigente: ≥50. |
+| Acoplamiento alto (Acop) | **18** unidad(es) con acoplamiento alto | máximo 2 por 1000 LOC | 18 hallazgo(s); el máximo para 3,313 LOC es 6.6 | Hacé que cada unidad dependa de una interfaz o de un módulo de servicio, no de los detalles internos de otra; evitá acceder a campos ajenos. Meta: ≤2 por 1000 LOC. |
 
 > Empezá por las señales de seguridad (**SEC**, **SQL**) y por la **duplicación**: son las que más pesan en el índice y las más rápidas de verificar a ojo. Después de corregir, volvé a correr la medición: el semáforo se recalcula sobre `main`.
 
@@ -196,7 +191,7 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 | 2026-11-11 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 23 / 7 |
 | 2026-11-13 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 0 / 9 |
 
-**Fuera de clase:** 6 fecha(s) con actividad · 74 commits · 10 merges
+**Fuera de clase:** 7 fecha(s) con actividad · 80 commits · 12 merges
 
 | Fecha | Repositorios | Commits / merges |
 |---|---|--:|
@@ -206,19 +201,17 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 | 2026-10-29 | api-gastos, bot-telegram, servicio-ia | 5 / 0 |
 | 2026-11-07 | api-gastos, bot-telegram, servicio-ia | 3 / 0 |
 | 2026-11-12 | api-gastos, front-web, servicio-ia | 16 / 3 |
+| 2026-11-14 | api-gastos, bot-telegram, front-web | 6 / 2 |
 
 ## 7. Anexo: dónde mirar
 
 Archivos donde el análisis encontró cada señal en rojo (sin número de línea, a propósito):
 
-**Baja cohesión (Coh)** — 2 archivo(s):
-- `src/auth/services/auth.service.ts`
-- `src/gastos/services/gastos-consulta.service.ts`
-
-**Acoplamiento alto (Acop)** — 17 archivo(s):
+**Acoplamiento alto (Acop)** — 18 archivo(s):
 - `src/auth/controllers/auth.controller.ts`
 - `src/auth/controllers/telegram-auth.controller.ts`
-- `src/auth/services/auth.service.ts`
+- `src/auth/services/auth-registro.service.ts`
+- `src/auth/services/auth-telegram.service.ts`
 - `src/categorias/services/categorias.service.ts`
 - `src/chat/chat.controller.ts`
 - `src/chat/chat.service.ts`
@@ -226,11 +219,11 @@ Archivos donde el análisis encontró cada señal en rojo (sin número de línea
 - `src/gastos/controllers/gastos-bot.controller.ts`
 - `src/gastos/controllers/gastos-detalle.controller.ts`
 - `src/gastos/controllers/gastos-recurrentes.controller.ts`
-- `src/gastos/services/gastos-consulta.service.ts`
-- `src/gastos/services/gastos-recurrentes.service.ts`
+- `src/gastos/services/gastos-listado.service.ts`
 - `src/gastos/services/gastos-resumen.service.ts`
+- `src/gastos/services/gastos-ultimos.service.ts`
 - `src/gastos/services/gastos.service.ts`
-- `src/gastos/services/usuarios-gastos.service.ts`
+- `src/grupos/grupos.controller.ts`
 - `src/grupos/grupos.service.ts`
 - `src/presupuestos/presupuestos.controller.ts`
 
