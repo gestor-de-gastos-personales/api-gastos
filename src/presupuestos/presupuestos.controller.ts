@@ -1,18 +1,17 @@
-import * as nest from '@nestjs/common';
+import { autenticado, getUser } from '../auth/decoradores.js';
+import * as nj from '../common/nest.js';
 import { PresupuestosService } from './presupuestos.service.js';
 import * as DTO from './dto/index.js';
-import { Autenticado } from '../auth/decorators/autenticado.decorator.js';
-import { GetUser } from '../auth/decorators/get-user.decorator.js';
 
-@nest.Controller('presupuestos')
+@nj.controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestosService: PresupuestosService) {}
 
-  @nest.Get()
+  @nj.get()
   listar(
-    @nest.Query('telegramId') telegramId?: string,
-    @nest.Query('mes') mes?: string,
-    @nest.Query('anio') anio?: string,
+    @nj.query('telegramId') telegramId?: string,
+    @nj.query('mes') mes?: string,
+    @nj.query('anio') anio?: string,
   ) {
     return this.presupuestosService.listar(
       telegramId ?? '',
@@ -21,18 +20,18 @@ export class PresupuestosController {
     );
   }
 
-  @nest.Post()
-  guardar(@nest.Body() dto: DTO.CreatePresupuestoDto) {
+  @nj.post()
+  guardar(@nj.body() dto: DTO.CreatePresupuestoDto) {
     return this.presupuestosService.guardar(dto);
   }
 
   /** Presupuestos del usuario autenticado (web). */
-  @nest.Get('mios')
-  @Autenticado()
+  @nj.get('mios')
+  @autenticado()
   listarMios(
-    @GetUser('id') usuarioId: number,
-    @nest.Query('mes') mes?: string,
-    @nest.Query('anio') anio?: string,
+    @getUser('id') usuarioId: number,
+    @nj.query('mes') mes?: string,
+    @nj.query('anio') anio?: string,
   ) {
     return this.presupuestosService.listarPorUsuario(
       usuarioId,
@@ -41,11 +40,11 @@ export class PresupuestosController {
     );
   }
 
-  @nest.Post('mios')
-  @Autenticado()
+  @nj.post('mios')
+  @autenticado()
   guardarMio(
-    @GetUser('id') usuarioId: number,
-    @nest.Body() dto: DTO.PresupuestoMioDto,
+    @getUser('id') usuarioId: number,
+    @nj.body() dto: DTO.PresupuestoMioDto,
   ) {
     return this.presupuestosService.guardarParaUsuario(usuarioId, dto);
   }

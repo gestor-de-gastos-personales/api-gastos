@@ -1,23 +1,23 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { CategoriasService } from '../services/categorias.service.js';
 import { CreateCategoriaDto } from '../dto/create-categoria.dto.js';
 
-@Controller('categorias')
+@nj.controller('categorias')
 export class CategoriasController {
   constructor(private readonly categoriasService: CategoriasService) {}
 
-  @Get()
+  @nj.get()
   findAll() {
     return this.categoriasService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @nj.get(':id')
+  findOne(@nj.param('id') id: string) {
     return this.categoriasService.findOne(+id);
   }
 
-  @Post()
-  create(@Body() createCategoriaDto: CreateCategoriaDto) {
+  @nj.post()
+  create(@nj.body() createCategoriaDto: CreateCategoriaDto) {
     return this.categoriasService.create(createCategoriaDto);
   }
 }

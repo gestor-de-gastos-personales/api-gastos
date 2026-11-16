@@ -1,11 +1,12 @@
+import { mensajesAuth } from '../auth/mensajes.js';
+import * as nj from '../common/nest.js';
 import { randomBytes } from 'node:crypto';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateGrupoDto } from './dto/create-grupo.dto.js';
 import { UnirseGrupoDto } from './dto/unirse-grupo.dto.js';
 
 /** Grupos compartidos de gastos (F8/F10). */
-@Injectable()
+@nj.injectable()
 export class GruposService {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -36,7 +37,7 @@ export class GruposService {
     const creado = await this.prisma.usuario.create({
       data: {
         telegramId: String(telegramId),
-        nombre: `Usuario Telegram ${telegramId}`,
+        nombre: `${mensajesAuth.nombreTelegram} ${telegramId}`,
       },
     });
 
@@ -90,8 +91,8 @@ export class GruposService {
     });
 
     if (!grupo) {
-      throw new NotFoundException(
-        `No existe un grupo con el código ${dto.codigoInvitacion}`,
+      throw new nj.noEncontrado(
+        `no existe un grupo con el código ${dto.codigoInvitacion}`,
       );
     }
 

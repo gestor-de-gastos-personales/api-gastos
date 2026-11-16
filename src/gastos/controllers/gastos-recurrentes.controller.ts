@@ -1,29 +1,29 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { GastosService } from '../services/gastos.service.js';
 import * as DTO from '../dto/index.js';
 
-@nest.Controller('gastos/recurrentes')
+@nj.controller('gastos/recurrentes')
 export class GastosRecurrentesController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @nest.Post()
-  create(@nest.Body() dto: DTO.CreateGastoRecurrenteDto) {
+  @nj.post()
+  create(@nj.body() dto: DTO.CreateGastoRecurrenteDto) {
     return this.gastosService.createRecurrente(dto);
   }
 
-  @nest.Get()
-  findAll(@nest.Query('usuarioId') usuarioId?: string, @nest.Query('telegramId') telegramId?: string) {
+  @nj.get()
+  findAll(@nj.query('usuarioId') usuarioId?: string, @nj.query('telegramId') telegramId?: string) {
     const id = usuarioId ?? telegramId ?? '0';
     return this.gastosService.listRecurrentes(id, telegramId);
   }
 
-  @nest.Get('vencidas')
+  @nj.get('vencidas')
   vencidas() {
     return this.gastosService.getRecurrentesVencidas();
   }
 
-  @nest.Post('ejecutar')
-  ejecutar(@nest.Body() body: { reglaId?: number }) {
+  @nj.post('ejecutar')
+  ejecutar(@nj.body() body: { reglaId?: number }) {
     if (body.reglaId) {
       return this.gastosService.ejecutarRecurrente(body.reglaId);
     }
@@ -32,22 +32,22 @@ export class GastosRecurrentesController {
     );
   }
 
-  @nest.Patch(':id')
+  @nj.patch(':id')
   update(
-    @nest.Param('id') id: string,
-    @nest.Body() dto: DTO.UpdateGastoRecurrenteDto,
-    @nest.Query('usuarioId') usuarioId?: string,
-    @nest.Query('telegramId') telegramId?: string,
+    @nj.param('id') id: string,
+    @nj.body() dto: DTO.UpdateGastoRecurrenteDto,
+    @nj.query('usuarioId') usuarioId?: string,
+    @nj.query('telegramId') telegramId?: string,
   ) {
     const user = usuarioId ?? telegramId ?? '0';
     return this.gastosService.updateRecurrente(user, Number(id), dto, telegramId);
   }
 
-  @nest.Delete(':id')
+  @nj.del(':id')
   remove(
-    @nest.Param('id') id: string,
-    @nest.Query('usuarioId') usuarioId?: string,
-    @nest.Query('telegramId') telegramId?: string,
+    @nj.param('id') id: string,
+    @nj.query('usuarioId') usuarioId?: string,
+    @nj.query('telegramId') telegramId?: string,
   ) {
     const user = usuarioId ?? telegramId ?? '0';
     return this.gastosService.removeRecurrente(user, Number(id), telegramId);

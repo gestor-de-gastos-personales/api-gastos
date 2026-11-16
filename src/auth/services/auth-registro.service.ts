@@ -1,13 +1,14 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type * as DTO from '../dto/index.js';
+import { mensajesAuth } from '../mensajes.js';
 import * as bcrypt from 'bcrypt';
 
 const hashear = (password: string) => bcrypt.hash(password, 10);
-const conflicto = (mensaje: string) => new nest.ConflictException(mensaje);
+const conflicto = (mensaje: string) => new nj.conflicto(mensaje);
 
 /** Alta de usuarios web y de Telegram. */
-@nest.Injectable()
+@nj.injectable()
 export class AuthRegistroService {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -23,7 +24,7 @@ export class AuthRegistroService {
 
   private async asegurarEmailDisponible(email: string) {
     if (await this.buscarPorEmail(email)) {
-      throw conflicto('El email ya se encuentra registrado');
+      throw conflicto(mensajesAuth.emailRegistrado);
     }
   }
 
@@ -34,9 +35,7 @@ export class AuthRegistroService {
     const existente = await this.buscarPorTelegram(telegramId);
 
     if (existente && existente.id !== exceptoUsuarioId) {
-      throw conflicto(
-        'Este ID de Telegram ya se encuentra vinculado a otra cuenta.',
-      );
+      throw conflicto(mensajesAuth.telegramVinculado);
     }
   }
 
@@ -71,7 +70,7 @@ export class AuthRegistroService {
     return this.crearUsuario({
       email: dto.email,
       password: dto.password,
-      nombre: dto.nombre || 'Usuario Telegram',
+      nombre: dto.nombre || mensajesAuth.nombreTelegram,
       telegramId: String(dto.telegramId),
     });
   }

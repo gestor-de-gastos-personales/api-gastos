@@ -1,19 +1,20 @@
-import { IsNotEmpty, IsNumber, IsString, IsOptional, IsDateString } from 'class-validator';
+import { esFechaISO, esNumero, esOpcional, esRequerido, esTexto } from '../../common/validadores.js';
+
 
 export class CreateGastoDto {
-  @IsString()
-  @IsNotEmpty()
+  @esTexto()
+  @esRequerido()
   descripcion: string;
 
-  @IsNumber()
-  @IsNotEmpty()
+  @esNumero()
+  @esRequerido()
   valor: number;
 
-  @IsOptional()
-  @IsDateString()
+  @esOpcional()
+  @esFechaISO()
   fecha?: string;
 
-  @IsNumber()
-  @IsNotEmpty()
+  @esNumero()
+  @esRequerido()
   categoria: number;
 }

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import * as nj from './common/nest.js';
 
-@Injectable()
+@nj.injectable()
 export class AppService {
   getHello(): string {
     return 'Hello World!';

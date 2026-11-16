@@ -1,8 +1,8 @@
-import { Global, Module } from '@nestjs/common';
+import * as nj from '../common/nest.js';
 import { PrismaService } from './prisma.service.js';
 
-@Global()
-@Module({
+@nj.global()
+@nj.modulo({
   providers: [PrismaService],
   exports: [PrismaService],
 })

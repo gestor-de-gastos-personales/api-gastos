@@ -1,4 +1,5 @@
-import { Allow, IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
+import { esFechaISO, esNumero, esOpcional, esTexto } from '../../common/validadores.js';
+import { Allow } from 'class-validator';
 
 /**
  * Actualización parcial de un gasto.
@@ -8,19 +9,19 @@ import { Allow, IsDateString, IsNumber, IsOptional, IsString } from 'class-valid
  * solo escribe los que llegan.
  */
 export class UpdateGastoDto {
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   descripcion?: string;
 
-  @IsOptional()
-  @IsNumber()
+  @esOpcional()
+  @esNumero()
   valor?: number;
 
-  @IsOptional()
-  @IsDateString({}, { message: 'fecha debe ser una fecha ISO válida' })
+  @esOpcional()
+  @esFechaISO({}, { message: 'fecha debe ser una fecha ISO válida' })
   fecha?: string;
 
-  @IsOptional()
+  @esOpcional()
   @Allow()
   categoria?: string | number;
 

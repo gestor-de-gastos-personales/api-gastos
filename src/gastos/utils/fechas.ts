@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import type {
   OpcionesResumen,
   PeriodoResumen,
@@ -28,7 +28,7 @@ export function parseFechaISO(valor: string, esFinDeDia: boolean): Date {
   const fecha = new Date(valor);
 
   if (Number.isNaN(fecha.getTime())) {
-    throw new BadRequestException(`La fecha '${valor}' no es válida`);
+    throw new nj.solicitudInvalida(`La fecha '${valor}' no es válida`);
   }
 
   if (esFinDeDia && FORMATO_ISO.test(valor)) {
@@ -77,7 +77,7 @@ function periodoExplicito(opciones: OpcionesResumen): PeriodoResumen {
     : new Date();
 
   if (fechaInicio > fechaFin) {
-    throw new BadRequestException(
+    throw new nj.solicitudInvalida(
       'La fecha desde no puede ser posterior a la fecha hasta',
     );
   }
@@ -125,6 +125,11 @@ function periodoPorMes(opciones: OpcionesResumen): PeriodoResumen {
     fechaInicio: new Date(Date.UTC(anio, 0, 1)),
     fechaFin: new Date(Date.UTC(anio, 11, 31, 23, 59, 59, 999)),
   };
+}
+
+/** Crea una fecha UTC sin repetir `Date.UTC` en los servicios. */
+export function fechaUTC(anio: number, mes: number, dia: number): Date {
+  return new Date(Date.UTC(anio, mes, dia));
 }
 
 /** Resuelve el período del resumen priorizando fechas explícitas y rangos. */

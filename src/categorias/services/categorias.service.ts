@@ -1,26 +1,22 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { CreateCategoriaDto } from '../dto/create-categoria.dto.js';
 import { UpdateCategoriaDto } from '../dto/update-categoria.dto.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 type Categoria = { id: number; nombre: string; default: boolean };
 
-@Injectable()
+@nj.injectable()
 export class CategoriasService {
   constructor(private readonly prisma: PrismaService) {}
 
   private noEncontrada(id: number) {
-    return new NotFoundException(`Categoría con ID #${id} no encontrada`);
+    return new nj.noEncontrado(`Categoría con ID #${id} no encontrada`);
   }
 
   /** Las categorías del sistema no pueden editarse ni eliminarse. */
   private asegurarEditable(categoria: Categoria) {
     if (categoria.default) {
-      throw new ForbiddenException(
+      throw new nj.prohibido(
         'No se pueden modificar las categorías por defecto del sistema',
       );
     }

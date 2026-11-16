@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import * as nj from '../common/nest.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePresupuestoDto } from './dto/create-presupuesto.dto.js';
 import type { PresupuestoMioDto } from './dto/presupuesto-mio.dto.js';
@@ -12,7 +12,7 @@ interface PresupuestoEntrada {
 }
 
 /** Presupuestos mensuales por categoría (F5). */
-@Injectable()
+@nj.injectable()
 export class PresupuestosService {
   constructor(private readonly prisma: PrismaService) {}
 

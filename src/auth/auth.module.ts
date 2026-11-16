@@ -1,11 +1,11 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../common/nest.js';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import * as jwtConfig from './jwt.config.js';
 import { AUTH_CONTROLLERS, AUTH_PROVIDERS } from './auth.providers.js';
 
-@nest.Module({
+@nj.modulo({
   imports: [
     PrismaModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),

@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type * as DTO from '../dto/index.js';
@@ -8,10 +8,10 @@ const verificar = (password: string, hash: string) =>
   bcrypt.compare(password, hash);
 
 const credencialesInvalidas = () =>
-  new nest.UnauthorizedException('Credenciales inválidas');
+  new nj.noAutorizado('Credenciales inválidas');
 
 /** Validación de credenciales y emisión del JWT web. */
-@nest.Injectable()
+@nj.injectable()
 export class AuthLoginService {
   constructor(
     private readonly prisma: PrismaService,

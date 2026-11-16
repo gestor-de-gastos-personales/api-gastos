@@ -1,51 +1,51 @@
-import * as cv from 'class-validator';
+import { estaEnLista, esRequerido, esOpcional, esTexto } from '../../common/validadores.js';
 import * as validacion from '../../common/validacion.js';
 import * as tipos from '../gastos.types.js';
 
 export class CreateGastoRecurrenteDto {
-  @cv.IsNotEmpty()
+  @esRequerido()
   @validacion.entero()
   usuarioId!: number;
 
-  @cv.IsOptional()
-  @cv.IsString()
+  @esOpcional()
+  @esTexto()
   telegramId?: string;
 
-  @cv.IsNotEmpty()
+  @esRequerido()
   @validacion.decimal()
   monto!: number;
 
-  @cv.IsOptional()
-  @cv.IsString()
+  @esOpcional()
+  @esTexto()
   comercio?: string;
 
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.entero()
   categoriaId?: number;
 
-  @cv.IsOptional()
-  @cv.IsString()
+  @esOpcional()
+  @esTexto()
   categoria?: string;
 
-  @cv.IsNotEmpty()
-  @cv.IsString()
+  @esRequerido()
+  @esTexto()
   descripcion!: string;
 
-  @cv.IsNotEmpty()
-  @cv.IsIn(tipos.FRECUENCIAS)
+  @esRequerido()
+  @estaEnLista(tipos.FRECUENCIAS)
   frecuencia!: tipos.Frecuencia;
 
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.entero()
   @validacion.rango(0, 6)
   diaSemana?: number;
 
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.entero()
   @validacion.rango(1, 31)
   diaMes?: number;
 
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.booleano()
   activo?: boolean;
 }

@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { GastosService } from '../services/gastos.service.js';
 import * as DTO from '../dto/index.js';
 import { JwtOpcionalGuard } from '../../auth/guards/jwt-opcional.guard.js';
@@ -22,7 +22,7 @@ function resolverIdentidad(
   if (solicitud.user?.id) return solicitud.user.id;
   if (telegramId) return telegramId;
 
-  throw new nest.UnauthorizedException(
+  throw new nj.noAutorizado(
     'Se requiere autenticación o el parámetro telegramId',
   );
 }
@@ -33,16 +33,16 @@ function resolverIdentidad(
  * Se registra al final del módulo para que las rutas literales
  * (`/gastos/ultimos`, `/gastos/resumen`, …) tengan prioridad sobre `:id`.
  */
-@nest.Controller('gastos')
-@nest.UseGuards(JwtOpcionalGuard)
+@nj.controller('gastos')
+@nj.useGuards(JwtOpcionalGuard)
 export class GastosDetalleController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @nest.Get(':id')
+  @nj.get(':id')
   findOne(
-    @nest.Req() solicitud: SolicitudConUsuario,
-    @nest.Param('id') id: string,
-    @nest.Query('telegramId') telegramId?: string,
+    @nj.req() solicitud: SolicitudConUsuario,
+    @nj.param('id') id: string,
+    @nj.query('telegramId') telegramId?: string,
   ) {
     return this.gastosService.getGastoById(
       resolverIdentidad(solicitud, telegramId),
@@ -50,12 +50,12 @@ export class GastosDetalleController {
     );
   }
 
-  @nest.Patch(':id')
+  @nj.patch(':id')
   update(
-    @nest.Req() solicitud: SolicitudConUsuario,
-    @nest.Param('id') id: string,
-    @nest.Body() dto: DTO.UpdateGastoDto,
-    @nest.Query('telegramId') telegramId?: string,
+    @nj.req() solicitud: SolicitudConUsuario,
+    @nj.param('id') id: string,
+    @nj.body() dto: DTO.UpdateGastoDto,
+    @nj.query('telegramId') telegramId?: string,
   ) {
     return this.gastosService.update(
       resolverIdentidad(solicitud, telegramId),
@@ -64,11 +64,11 @@ export class GastosDetalleController {
     );
   }
 
-  @nest.Delete(':id')
+  @nj.del(':id')
   remove(
-    @nest.Req() solicitud: SolicitudConUsuario,
-    @nest.Param('id') id: string,
-    @nest.Query('telegramId') telegramId?: string,
+    @nj.req() solicitud: SolicitudConUsuario,
+    @nj.param('id') id: string,
+    @nj.query('telegramId') telegramId?: string,
   ) {
     return this.gastosService.remove(
       resolverIdentidad(solicitud, telegramId),

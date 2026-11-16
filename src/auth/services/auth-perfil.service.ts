@@ -1,8 +1,8 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 /** Perfil del usuario autenticado, sin contraseña. */
-@nest.Injectable()
+@nj.injectable()
 export class AuthPerfilService {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -12,7 +12,7 @@ export class AuthPerfilService {
     });
 
     if (!usuario) {
-      throw new nest.UnauthorizedException('Usuario no encontrado');
+      throw new nj.noAutorizado('Usuario no encontrado');
     }
 
     const { password: _password, ...result } = usuario;

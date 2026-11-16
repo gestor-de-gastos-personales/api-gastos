@@ -1,8 +1,8 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import * as fechas from '../utils/fechas.js';
-import type * as DTO from '../dto/index.js';
+import type { SerieQueryDto } from '../dto/index.js';
 import * as tipos from '../gastos.types.js';
 
 /** Tope de puntos para no generar series gigantes por pedidos accidentales. */
@@ -13,8 +13,10 @@ const redondear = (n: number) => Number(n.toFixed(2));
 
 /** Lunes (UTC) de la semana a la que pertenece la fecha. */
 function inicioSemana(fecha: Date): Date {
-  const dia = new Date(
-    Date.UTC(fecha.getUTCFullYear(), fecha.getUTCMonth(), fecha.getUTCDate()),
+  const dia = fechas.fechaUTC(
+    fecha.getUTCFullYear(),
+    fecha.getUTCMonth(),
+    fecha.getUTCDate(),
   );
   const desdeLunes = (dia.getUTCDay() + 6) % 7;
   dia.setUTCDate(dia.getUTCDate() - desdeLunes);
@@ -50,19 +52,17 @@ function generarClaves(
     agrupacion === 'semana'
       ? inicioSemana(desde)
       : agrupacion === 'mes'
-        ? new Date(Date.UTC(desde.getUTCFullYear(), desde.getUTCMonth(), 1))
-        : new Date(
-            Date.UTC(
-              desde.getUTCFullYear(),
-              desde.getUTCMonth(),
-              desde.getUTCDate(),
-            ),
+        ? fechas.fechaUTC(desde.getUTCFullYear(), desde.getUTCMonth(), 1)
+        : fechas.fechaUTC(
+            desde.getUTCFullYear(),
+            desde.getUTCMonth(),
+            desde.getUTCDate(),
           );
 
   while (cursor <= hasta) {
     if (claves.length >= MAX_PUNTOS) {
-      throw new nest.BadRequestException(
-        'El rango es demasiado grande: reducí las fechas o usá una agrupación mayor.',
+      throw new nj.solicitudInvalida(
+        'el rango es demasiado grande: reducí las fechas o usá una agrupación mayor.',
       );
     }
 
@@ -80,7 +80,7 @@ function generarClaves(
  * Serie temporal de gastos por día, semana o mes.
  * Alimenta el gráfico de evolución del dashboard web.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosSerieService {
   constructor(
     private readonly prisma: PrismaService,
@@ -89,7 +89,7 @@ export class GastosSerieService {
 
   async getSerie(
     usuarioIdentifier: number | string,
-    filtro: DTO.SerieQueryDto = {},
+    filtro: SerieQueryDto = {},
   ): Promise<tipos.SerieGastos> {
     const usuarioId =
       await this.usuarios.obtenerOCrearUsuarioId(usuarioIdentifier);

@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { FilterGastosDto } from '../dto/filter-gasto.dto.js';
@@ -11,13 +11,13 @@ export interface GastoWhere {
   categoriaId?: number;
 }
 
-const noEncontrado = (mensaje: string) => new nest.NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nj.noEncontrado(mensaje);
 
 /**
  * Listado y detalle de gastos. No conoce los filtros del bot ni el resumen:
  * cada caso de uso vive en su propio servicio.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosListadoService {
   constructor(
     private readonly prisma: PrismaService,

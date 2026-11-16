@@ -1,24 +1,25 @@
+import { esEntero, esOpcional, esTexto } from '../../common/validadores.js';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+
 
 export class FilterUltimoGastoDto {
-  @IsInt()
+  @esEntero()
   @Type(() => Number)
   usuarioId!: number;
 
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   telegramId?: string;
 
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   comercio?: string;
 
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   categoria?: string;
 
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   desde?: string;
 }

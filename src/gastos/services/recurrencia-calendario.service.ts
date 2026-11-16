@@ -1,9 +1,9 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 
 const DIA_MS = 24 * 60 * 60 * 1000;
 
 /** Cálculo de la próxima fecha de ejecución de una regla recurrente. */
-@nest.Injectable()
+@nj.injectable()
 export class RecurrenciaCalendarioService {
   calcularProximaEjecucion(
     frecuencia: string,
