@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RecurrenciaCalendarioService } from './recurrencia-calendario.service.js';
 
@@ -14,7 +14,7 @@ export interface NotificacionRecurrente {
 /**
  * Ejecución de reglas vencidas y generación idempotente de notificaciones.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosRecurrentesEjecucionService {
   constructor(
     private readonly prisma: PrismaService,

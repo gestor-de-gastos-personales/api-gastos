@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { GastoWhere } from './gastos-listado.service.js';
 import type * as tipos from '../gastos.types.js';
@@ -24,7 +24,7 @@ function calcularPorcentaje(total: number, totalGeneral: number): number {
  * Agrupación de gastos por categoría para el resumen.
  * Separado del orquestador para que cada unidad tenga una sola razón de cambio.
  */
-@nest.Injectable()
+@nj.injectable()
 export class ResumenAgrupadoService {
   constructor(private readonly prisma: PrismaService) {}
 

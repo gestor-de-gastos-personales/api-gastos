@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
@@ -15,7 +15,7 @@ import {
  * Alta, listado, edición y baja de reglas recurrentes.
  * La ejecución de reglas vencidas vive en un servicio aparte.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosRecurrentesService {
   constructor(
     private readonly prisma: PrismaService,

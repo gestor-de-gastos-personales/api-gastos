@@ -1,7 +1,8 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { esRequerido, esTexto } from '../../common/validadores.js';
+
 
 export class CreateCategoriaDto {
-  @IsString()
-  @IsNotEmpty()
+  @esTexto()
+  @esRequerido()
   nombre: string;
 }

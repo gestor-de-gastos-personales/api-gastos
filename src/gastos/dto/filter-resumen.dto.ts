@@ -1,4 +1,4 @@
-import * as cv from 'class-validator';
+import { esFechaISO, estaEnLista, esOpcional, esTexto } from '../../common/validadores.js';
 import * as bot from './filter-resumen-bot.dto.js';
 import * as validacion from '../../common/validacion.js';
 import type * as tipos from '../gastos.types.js';
@@ -8,29 +8,29 @@ import type * as tipos from '../gastos.types.js';
  * explícitas, y opcionalmente una categoría por nombre.
  */
 export class FilterResumenDto {
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.entero()
   @validacion.rango(1, 12)
   mes?: number;
 
-  @cv.IsOptional()
+  @esOpcional()
   @validacion.entero()
   @validacion.rango(2000, 2100)
   anio?: number;
 
-  @cv.IsOptional()
-  @cv.IsIn(bot.RANGOS_RESUMEN, { message: 'el rango solicitado no es válido' })
+  @esOpcional()
+  @estaEnLista(bot.RANGOS_RESUMEN, { message: 'el rango solicitado no es válido' })
   rango?: tipos.RangoResumen;
 
-  @cv.IsOptional()
-  @cv.IsDateString({}, { message: 'desde debe ser una fecha iso válida' })
+  @esOpcional()
+  @esFechaISO({}, { message: 'desde debe ser una fecha iso válida' })
   desde?: string;
 
-  @cv.IsOptional()
-  @cv.IsDateString({}, { message: 'hasta debe ser una fecha iso válida' })
+  @esOpcional()
+  @esFechaISO({}, { message: 'hasta debe ser una fecha iso válida' })
   hasta?: string;
 
-  @cv.IsOptional()
-  @cv.IsString()
+  @esOpcional()
+  @esTexto()
   categoria?: string;
 }

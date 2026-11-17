@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
+import * as nj from '../common/nest.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { ChatController } from './chat.controller.js';
 import { ChatService } from './chat.service.js';
 
-@Module({
+@nj.modulo({
   imports: [AuthModule],
   controllers: [ChatController],
   providers: [ChatService],

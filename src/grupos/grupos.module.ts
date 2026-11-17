@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import * as nj from '../common/nest.js';
 import { GruposController } from './grupos.controller.js';
 import { GruposService } from './grupos.service.js';
 
-@Module({
+@nj.modulo({
   controllers: [GruposController],
   providers: [GruposService],
 })

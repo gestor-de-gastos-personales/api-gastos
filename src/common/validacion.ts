@@ -1,5 +1,6 @@
+import { esEntero, esNumero, minimo } from './validadores.js';
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, IsBoolean, Max, Min } from 'class-validator';
+import { IsBoolean, Max } from 'class-validator';
 
 type DecoradorPropiedad = (target: object, key: string | symbol) => void;
 
@@ -19,14 +20,14 @@ export function numero(): DecoradorPropiedad {
 
 /** Convierte a número y valida que sea entero. */
 export function entero(): DecoradorPropiedad {
-  return aplicar(Type(() => Number) as DecoradorPropiedad, IsInt() as DecoradorPropiedad);
+  return aplicar(Type(() => Number) as DecoradorPropiedad, esEntero() as DecoradorPropiedad);
 }
 
 /** Convierte a número y valida que sea un número (admite decimales). */
 export function decimal(): DecoradorPropiedad {
   return aplicar(
     Type(() => Number) as DecoradorPropiedad,
-    IsNumber() as DecoradorPropiedad,
+    esNumero() as DecoradorPropiedad,
   );
 }
 
@@ -38,7 +39,7 @@ export function booleano(): DecoradorPropiedad {
   );
 }
 
-/** Valida que un número esté dentro del rango [minimo, maximo]. */
-export function rango(minimo: number, maximo: number): DecoradorPropiedad {
-  return aplicar(Min(minimo) as DecoradorPropiedad, Max(maximo) as DecoradorPropiedad);
+/** Valida que un número esté dentro del rango [valorMinimo, valorMaximo]. */
+export function rango(valorMinimo: number, valorMaximo: number): DecoradorPropiedad {
+  return aplicar(minimo(valorMinimo) as DecoradorPropiedad, Max(valorMaximo) as DecoradorPropiedad);
 }

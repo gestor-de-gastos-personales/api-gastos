@@ -1,10 +1,5 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { esFechaISO, esOpcional, esRequerido, esTexto, minimo } from '../../common/validadores.js';
+
 import { entero, rango } from '../../common/validacion.js';
 
 /**
@@ -14,34 +9,34 @@ import { entero, rango } from '../../common/validacion.js';
  * (`YYYY-MM-DD`) y la categoría se resuelve por nombre.
  */
 export class FilterUltimosDto {
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   telegramId?: string;
 
-  @IsOptional()
-  @IsString()
+  @esOpcional()
+  @esTexto()
   usuarioId?: string;
 
-  @IsOptional()
+  @esOpcional()
   @entero()
   @rango(1, 50)
   limit?: number = 10;
 
-  @IsOptional()
+  @esOpcional()
   @entero()
-  @Min(1, { message: 'page debe ser mayor o igual a 1' })
+  @minimo(1, { message: 'page debe ser mayor o igual a 1' })
   page?: number = 1;
 
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty({ message: 'la categoría no puede estar vacía' })
+  @esOpcional()
+  @esTexto()
+  @esRequerido({ message: 'la categoría no puede estar vacía' })
   categoria?: string;
 
-  @IsOptional()
-  @IsDateString({}, { message: 'desde debe ser una fecha iso válida' })
+  @esOpcional()
+  @esFechaISO({}, { message: 'desde debe ser una fecha iso válida' })
   desde?: string;
 
-  @IsOptional()
-  @IsDateString({}, { message: 'hasta debe ser una fecha iso válida' })
+  @esOpcional()
+  @esFechaISO({}, { message: 'hasta debe ser una fecha iso válida' })
   hasta?: string;
 }

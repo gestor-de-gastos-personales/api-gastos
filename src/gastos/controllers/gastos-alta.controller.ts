@@ -1,18 +1,17 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { autenticado, getUser } from '../../auth/decoradores.js';
+import * as nj from '../../common/nest.js';
 import { GastosService } from '../services/gastos.service.js';
 import { CreateGastoDto } from '../dto/create-gasto.dto.js';
-import { Autenticado } from '../../auth/decorators/autenticado.decorator.js';
-import { GetUser } from '../../auth/decorators/get-user.decorator.js';
 
-@Controller('gastos')
-@Autenticado()
+@nj.controller('gastos')
+@autenticado()
 export class GastosAltaController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @Post()
+  @nj.post()
   create(
-    @GetUser('id') usuarioId: number,
-    @Body() createGastoDto: CreateGastoDto,
+    @getUser('id') usuarioId: number,
+    @nj.body() createGastoDto: CreateGastoDto,
   ) {
     return this.gastosService.create(usuarioId, createGastoDto);
   }

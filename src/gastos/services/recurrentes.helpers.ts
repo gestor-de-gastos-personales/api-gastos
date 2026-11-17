@@ -1,10 +1,10 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import type { PrismaService } from '../../prisma/prisma.service.js';
 import type { CategoriasResolverService } from './categorias-resolver.service.js';
 import type { UpdateGastoRecurrenteDto } from '../dto/update-gasto-recurrente.dto.js';
 import type { RecurrenciaCalendarioService } from './recurrencia-calendario.service.js';
 
-const noEncontrado = (mensaje: string) => new nest.NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nj.noEncontrado(mensaje);
 
 /** Busca una regla del usuario o lanza 404. */
 export async function buscarRegla(

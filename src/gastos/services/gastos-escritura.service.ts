@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
@@ -25,7 +25,7 @@ function resolverCategoria(dto: tipos.GastoInput): string | number | undefined {
  * Escritura de gastos: alta, edición parcial y baja.
  * Siempre resuelve el usuario a su id interno antes de tocar datos.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosEscrituraService {
   constructor(
     private readonly prisma: PrismaService,

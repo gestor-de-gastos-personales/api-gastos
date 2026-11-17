@@ -1,7 +1,6 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { GastosDeps } from './gastos-deps.js';
-import type * as DTO from '../dto/index.js';
-import type * as tipos from '../gastos.types.js';
+import type * as f from '../tipos-facade.js';
 
 /**
  * Fachada de gastos.
@@ -10,19 +9,19 @@ import type * as tipos from '../gastos.types.js';
  * cuando todo vivía en un único servicio) pero delega en servicios
  * especializados: consulta, escritura, resumen y recurrentes.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosService {
   constructor(private readonly deps: GastosDeps) {}
 
   // --- Escritura ---
-  create(usuarioIdentifier: number | string, dto: tipos.GastoInput) {
+  create(usuarioIdentifier: number | string, dto: f.gastoInput) {
     return this.deps.escritura.create(usuarioIdentifier, dto);
   }
 
   update(
     usuarioIdentifier: number | string,
     id: number,
-    dto: tipos.UpdateGastoInput,
+    dto: f.updateGastoInput,
   ) {
     return this.deps.escritura.update(usuarioIdentifier, id, dto);
   }
@@ -32,7 +31,7 @@ export class GastosService {
   }
 
   // --- Consulta ---
-  findAll(usuarioId: number, filtro?: DTO.FilterGastosDto) {
+  findAll(usuarioId: number, filtro?: f.filtroGastos) {
     return this.deps.listado.findAll(usuarioId, filtro);
   }
 
@@ -42,7 +41,7 @@ export class GastosService {
 
   getUltimos(
     usuarioIdentifier: number | string,
-    filtro: DTO.FilterUltimosDto = {},
+    filtro: f.filtroUltimos = {},
   ) {
     return this.deps.ultimos.getUltimos(usuarioIdentifier, filtro);
   }
@@ -66,13 +65,13 @@ export class GastosService {
   // --- Resumen ---
   getResumen(
     usuarioIdentifier: number | string,
-    filtro: tipos.OpcionesResumen = {},
+    filtro: f.opcionesResumen = {},
   ) {
     return this.deps.resumen.getResumen(usuarioIdentifier, filtro);
   }
 
   // --- Recurrentes ---
-  createRecurrente(dto: DTO.CreateGastoRecurrenteDto) {
+  createRecurrente(dto: f.crearRecurrente) {
     return this.deps.recurrentes.createRecurrente(dto);
   }
 
@@ -90,7 +89,7 @@ export class GastosService {
   updateRecurrente(
     usuarioIdentifier: number | string,
     id: number,
-    dto: DTO.UpdateGastoRecurrenteDto,
+    dto: f.actualizarRecurrente,
     telegramId?: string,
   ) {
     return this.deps.recurrentes.updateRecurrente(

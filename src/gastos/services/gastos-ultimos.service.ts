@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { UsuariosGastosService } from './usuarios-gastos.service.js';
 import { CategoriasResolverService } from './categorias-resolver.service.js';
@@ -7,7 +7,7 @@ import type { OpcionesResumen } from '../gastos.types.js';
 import * as fechas from '../utils/fechas.js';
 import type { GastoWhere } from './gastos-listado.service.js';
 
-const noEncontrado = (mensaje: string) => new nest.NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nj.noEncontrado(mensaje);
 
 /** Filtros admitidos por el listado de últimos gastos del bot. */
 export type FiltrosUltimos = Pick<
@@ -21,7 +21,7 @@ export type FiltrosUltimos = Pick<
  * que coincide con los filtros. Separado del listado web para que cada
  * unidad tenga una responsabilidad acotada.
  */
-@nest.Injectable()
+@nj.injectable()
 export class GastosUltimosService {
   constructor(
     private readonly prisma: PrismaService,
@@ -148,7 +148,7 @@ export class GastosUltimosService {
     }
 
     if (!encontrado) {
-      throw noEncontrado('No se encontró ningún gasto para esos filtros');
+      throw noEncontrado('no se encontró ningún gasto para esos filtros');
     }
 
     return encontrado;

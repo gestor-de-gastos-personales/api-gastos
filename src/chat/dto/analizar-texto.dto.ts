@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { esRequerido, esTexto } from '../../common/validadores.js';
+import { MaxLength } from 'class-validator';
 
 export class AnalizarTextoDto {
-  @IsString()
-  @IsNotEmpty()
+  @esTexto()
+  @esRequerido()
   @MaxLength(2000)
   texto!: string;
 }

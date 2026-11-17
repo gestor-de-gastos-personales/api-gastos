@@ -1,10 +1,10 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
-const noEncontrado = (mensaje: string) => new nest.NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nj.noEncontrado(mensaje);
 
 /** Resuelve categorías por id o por nombre para los gastos. */
-@nest.Injectable()
+@nj.injectable()
 export class CategoriasResolverService {
   constructor(private readonly prisma: PrismaService) {}
 

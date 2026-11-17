@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { Cron } from '@nestjs/schedule';
 import { GastosService } from '../services/gastos.service.js';
 
@@ -9,9 +9,9 @@ import { GastosService } from '../services/gastos.service.js';
  * se beneficie del registro automático sin depender de un proceso externo.
  * La expresión cron es configurable con RECURRENTES_CRON (default: cada hora).
  */
-@Injectable()
+@nj.injectable()
 export class GastosRecurrentesScheduler {
-  private readonly logger = new Logger(GastosRecurrentesScheduler.name);
+  private readonly logger = new nj.logger(GastosRecurrentesScheduler.name);
 
   constructor(private readonly gastosService: GastosService) {}
 

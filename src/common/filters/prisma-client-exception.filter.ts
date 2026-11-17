@@ -1,36 +1,16 @@
-import { ArgumentsHost, Catch } from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
-import { Prisma } from '@prisma/client';
-import type { Response, Request } from 'express';
+import * as nj from '../nest.js';
+import { errorPrisma } from '../../prisma/tipos.js';
+import { respuestas } from './respuestas-prisma.js';
+import type { peticion, respuestaHttp } from '../express.js';
 
-interface RespuestaError {
-  status: number;
-  mensaje: (target: string) => string;
-}
+@nj.catchError(errorPrisma)
+export class PrismaClientExceptionFilter extends nj.filtroBase {
+  constructor(adapter: nj.tipoAdaptador) {
+    super(adapter);
+  }
 
-/** Mapa de códigos de Prisma a respuestas HTTP legibles. */
-const RESPUESTAS: Record<string, RespuestaError> = {
-  P2002: {
-    status: 409,
-    mensaje: (target) =>
-      `Violación de restricción única en: [${target}]`,
-  },
-  P2025: {
-    status: 404,
-    mensaje: () =>
-      'El registro solicitado no fue encontrado en la base de datos.',
-  },
-  P2003: {
-    status: 400,
-    mensaje: () =>
-      'Operación no permitida: referencia a un registro inexistente (Clave foránea inválida).',
-  },
-};
-
-@Catch(Prisma.PrismaClientKnownRequestError)
-export class PrismaClientExceptionFilter extends BaseExceptionFilter {
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
-    const respuesta = RESPUESTAS[exception.code];
+  catch(exception: errorPrisma, host: nj.hostArgumentos) {
+    const respuesta = respuestas[exception.code];
 
     if (!respuesta) {
       // Código no mapeado: delega al manejador por defecto de Nest.
@@ -44,17 +24,17 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
       'campo duplicado';
 
     this.responder(
-      ctx.getResponse<Response>(),
-      ctx.getRequest<Request>(),
+      ctx.getResponse<respuestaHttp>(),
+      ctx.getRequest<peticion>(),
       respuesta,
       target,
     );
   }
 
   private responder(
-    response: Response,
-    request: Request,
-    respuesta: RespuestaError,
+    response: respuestaHttp,
+    request: peticion,
+    respuesta: { status: number; mensaje: (target: string) => string },
     target: string,
   ) {
     response.status(respuesta.status).json({

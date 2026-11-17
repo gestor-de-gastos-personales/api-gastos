@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
-const noEncontrado = (mensaje: string) => new NotFoundException(mensaje);
+const noEncontrado = (mensaje: string) => new nj.noEncontrado(mensaje);
 
 /**
  * Resuelve las entidades de referencia de un gasto: el usuario (por id
@@ -10,7 +10,7 @@ const noEncontrado = (mensaje: string) => new NotFoundException(mensaje);
  * Se aísla para que los servicios de consulta, escritura y resumen no
  * repitan la misma lógica de resolución.
  */
-@Injectable()
+@nj.injectable()
 export class UsuariosGastosService {
   constructor(private readonly prisma: PrismaService) {}
 

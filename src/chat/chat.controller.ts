@@ -1,25 +1,25 @@
-import * as nest from '@nestjs/common';
+import { autenticado } from '../auth/decoradores.js';
+import * as nj from '../common/nest.js';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Autenticado } from '../auth/decorators/autenticado.decorator.js';
 import { ChatService } from './chat.service.js';
 import type { ArchivoSubido } from './chat.types.js';
 import { AnalizarTextoDto } from './dto/analizar-texto.dto.js';
 
-@nest.Controller('chat')
-@Autenticado()
+@nj.controller('chat')
+@autenticado()
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @nest.Post('analizar')
-  analizar(@nest.Body() dto: AnalizarTextoDto) {
+  @nj.post('analizar')
+  analizar(@nj.body() dto: AnalizarTextoDto) {
     return this.chatService.analizarTexto(dto.texto);
   }
 
-  @nest.Post('analizar-imagen')
-  @nest.UseInterceptors(
+  @nj.post('analizar-imagen')
+  @nj.useInterceptors(
     FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }),
   )
-  analizarImagen(@nest.UploadedFile() archivo: ArchivoSubido) {
+  analizarImagen(@nj.uploadedFile() archivo: ArchivoSubido) {
     return this.chatService.analizarImagen(archivo);
   }
 }

@@ -1,17 +1,18 @@
-import { IsDateString, IsIn, IsOptional } from 'class-validator';
+import { esFechaISO, esOpcional, estaEnLista } from '../../common/validadores.js';
+
 import type { AgrupacionSerie } from '../gastos.types.js';
 
 /** Filtro de la serie temporal: fechas ISO y agrupación. */
 export class SerieQueryDto {
-  @IsOptional()
-  @IsDateString()
+  @esOpcional()
+  @esFechaISO()
   desde?: string;
 
-  @IsOptional()
-  @IsDateString()
+  @esOpcional()
+  @esFechaISO()
   hasta?: string;
 
-  @IsOptional()
-  @IsIn(['dia', 'semana', 'mes'])
+  @esOpcional()
+  @estaEnLista(['dia', 'semana', 'mes'])
   agrupacion?: AgrupacionSerie;
 }

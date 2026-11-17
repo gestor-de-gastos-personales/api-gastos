@@ -1,4 +1,4 @@
-import { applyDecorators, UseGuards } from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
 
 /**
@@ -6,4 +6,4 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
  * Encapsula el guard para que los controladores dependan de una
  * única abstracción de autenticación.
  */
-export const Autenticado = () => applyDecorators(UseGuards(JwtAuthGuard));
+export const Autenticado = () => nj.applyDecorators(nj.useGuards(JwtAuthGuard));

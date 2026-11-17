@@ -1,4 +1,4 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { GastosService } from '../services/gastos.service.js';
 import * as DTO from '../dto/index.js';
 
@@ -10,34 +10,34 @@ import * as DTO from '../dto/index.js';
  * en este controlador, que se registra antes que el de detalle (`:id`), para
  * que Express no las capture como un id.
  */
-@nest.Controller('gastos')
+@nj.controller('gastos')
 export class GastosBotController {
   constructor(private readonly gastosService: GastosService) {}
 
-  @nest.Post('bot')
-  createFromBot(@nest.Body() body: DTO.CreateGastoBotDto) {
+  @nj.post('bot')
+  createFromBot(@nj.body() body: DTO.CreateGastoBotDto) {
     return this.gastosService.create(body.telegramId, body);
   }
 
-  @nest.Get('resumen/bot')
-  getResumenBot(@nest.Query() filtro: DTO.FilterResumenBotDto) {
+  @nj.get('resumen/bot')
+  getResumenBot(@nj.query() filtro: DTO.FilterResumenBotDto) {
     return this.gastosService.getResumen(filtro.telegramId, filtro);
   }
 
   /** Últimos gastos con paginación y filtros (F1). */
-  @nest.Get('ultimos')
-  getUltimos(@nest.Query() filtro: DTO.FilterUltimosDto) {
+  @nj.get('ultimos')
+  getUltimos(@nj.query() filtro: DTO.FilterUltimosDto) {
     const identidad = filtro.telegramId ?? filtro.usuarioId ?? '0';
     return this.gastosService.getUltimos(identidad, filtro);
   }
 
-  @nest.Get('ultimo')
+  @nj.get('ultimo')
   ultimo(
-    @nest.Query('usuarioId') usuarioId?: string,
-    @nest.Query('telegramId') telegramId?: string,
-    @nest.Query('comercio') comercio?: string,
-    @nest.Query('categoria') categoria?: string,
-    @nest.Query('desde') desde?: string,
+    @nj.query('usuarioId') usuarioId?: string,
+    @nj.query('telegramId') telegramId?: string,
+    @nj.query('comercio') comercio?: string,
+    @nj.query('categoria') categoria?: string,
+    @nj.query('desde') desde?: string,
   ) {
     const identidad = usuarioId ?? telegramId ?? '0';
     return this.gastosService.getUltimoGasto(identidad, {

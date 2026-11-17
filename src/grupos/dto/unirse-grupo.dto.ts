@@ -1,12 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { esRequerido, esTexto } from '../../common/validadores.js';
+
 
 /** Ingreso a un grupo existente mediante su código de invitación. */
 export class UnirseGrupoDto {
-  @IsString()
-  @IsNotEmpty({ message: 'El telegramId es obligatorio' })
+  @esTexto()
+  @esRequerido({ message: 'El telegramId es obligatorio' })
   telegramId: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'El código de invitación es obligatorio' })
+  @esTexto()
+  @esRequerido({ message: 'El código de invitación es obligatorio' })
   codigoInvitacion: string;
 }

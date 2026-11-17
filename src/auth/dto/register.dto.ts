@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { esRequerido, esTexto } from '../../common/validadores.js';
+
 import { CredencialesDto } from './credenciales.dto.js';
 
 export class RegisterDto extends CredencialesDto {
-  @IsString()
-  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
+  @esTexto()
+  @esRequerido({ message: 'El nombre no puede estar vacío' })
   nombre: string;
 }

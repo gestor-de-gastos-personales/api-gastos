@@ -1,10 +1,10 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { GastoWhere } from './gastos-listado.service.js';
 import type * as tipos from '../gastos.types.js';
 
 /** Gasto de mayor monto del período consultado. */
-@nest.Injectable()
+@nj.injectable()
 export class ResumenMayorGastoService {
   constructor(private readonly prisma: PrismaService) {}
 

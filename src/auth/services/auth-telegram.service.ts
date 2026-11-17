@@ -1,11 +1,11 @@
-import * as nest from '@nestjs/common';
+import * as nj from '../../common/nest.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthLoginService } from './auth-login.service.js';
 import { AuthRegistroService } from './auth-registro.service.js';
 import type * as DTO from '../dto/index.js';
 
 /** Flujos de autenticación que consume el bot de Telegram. */
-@nest.Injectable()
+@nj.injectable()
 export class AuthTelegramService {
   constructor(
     private readonly prisma: PrismaService,

@@ -1,19 +1,20 @@
-import { IsOptional, IsInt, Min } from 'class-validator';
+import { esEntero, esOpcional, minimo } from '../validadores.js';
+
 import { Type } from 'class-transformer';
 
 /**
  * Parámetros de paginación reutilizables por los listados de la API.
  */
 export class PaginacionDto {
-  @IsOptional()
+  @esOpcional()
   @Type(() => Number)
-  @IsInt()
-  @Min(1)
+  @esEntero()
+  @minimo(1)
   page?: number = 1;
 
-  @IsOptional()
+  @esOpcional()
   @Type(() => Number)
-  @IsInt()
-  @Min(1)
+  @esEntero()
+  @minimo(1)
   limit?: number = 10;
 }
