@@ -9,6 +9,7 @@ Stack completo con Docker Compose:
 | servicio-ia (Fastify) | `mangos-ia` | http://localhost:3002/health |
 | bot-telegram | `mangos-bot` | — (polling) |
 | postgres | `mangos-postgres` | solo red interna (`postgres:5432`) |
+| Prisma Studio | `mangos-prisma-studio` | http://localhost:5555 |
 | ollama (opcional) | `mangos-ollama` | http://localhost:11434 |
 
 ## Requisitos
@@ -54,6 +55,15 @@ ejecuta el seed de categorías por defecto. La API espera a que termine bien.
 - IA: http://localhost:3002/health
 - Postgres: solo dentro de la red de Compose (`postgres:5432`). Para entrar:
   `docker compose exec postgres psql -U postgres -d gestor_de_gastos_db`
+
+## Prisma Studio
+
+```bash
+docker compose up -d prisma-studio
+```
+
+Abrí http://localhost:5555. Se conecta a la misma base del compose; no hace
+falta exponer Postgres al host.
 
 ## Comandos útiles
 
