@@ -1,0 +1,172 @@
+name: mangos
+
+# ---------------------------------------------------------------------------
+# Mangos — stack completo: Postgres + API + IA + bot + front
+#
+# Los secretos se leen de los .env de cada repo (no se copian acá):
+#   api-gastos/.env    -> JWT_SECRET
+#   bot-telegram/.env  -> TELEGRAM_BOT_TOKEN
+#   servicio-ia/.env   -> OPENROUTER_API_KEY / configuración de IA
+#
+# Las variables de este archivo (puertos, URLs) se pueden sobreescribir en un
+# .env en la raíz; ver .env.docker.example.
+# ---------------------------------------------------------------------------
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mangos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
+      POSTGRES_DB: ${POSTGRES_DB:-gestor_de_gastos_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gestor_de_gastos_db}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  # Aplica migraciones y sincroniza las categorías por defecto.
+  # Es de una sola ejecución: la API espera a que termine bien.
+  migrate:
+    build:
+      context: ../../api-gastos
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-gestor_de_gastos_db}?schema=public
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api-gastos:
+    build:
+      context: ../../api-gastos
+      target: runtime
+    container_name: mangos-api
+    restart: unless-stopped
+    env_file:
+      - path: ../../api-gastos/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-gestor_de_gastos_db}?schema=public
+      SERVICIO_IA_URL: http://servicio-ia:3002
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080,http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  servicio-ia:
+    build:
+      context: ../../servicio-ia
+    container_name: mangos-ia
+    restart: unless-stopped
+    env_file:
+      - path: ../../servicio-ia/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      HOST: 0.0.0.0
+      PORT: 3002
+      API_GASTOS_URL: http://api-gastos:3000
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+    ports:
+      - "${IA_PORT:-3002}:3002"
+    depends_on:
+      api-gastos:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3002/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  bot-telegram:
+    build:
+      context: ../../bot-telegram
+    container_name: mangos-bot
+    restart: unless-stopped
+    env_file:
+      - path: ../../bot-telegram/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      BOT_AUTOSTART: "1"
+      API_GASTOS_URL: http://api-gastos:3000
+      SERVICIO_IA_URL: http://servicio-ia:3002
+    depends_on:
+      api-gastos:
+        condition: service_healthy
+      servicio-ia:
+        condition: service_started
+
+  front-web:
+    build:
+      context: ../../front-web
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    container_name: mangos-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api-gastos:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+
+  # Opcional. Levantalo con: docker compose --profile ollama up -d
+  # y poné AI_PROVIDER=ollama en servicio-ia/.env.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mangos-ollama
+    profiles: ["ollama"]
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  postgres_data:
+  ollama_data:
