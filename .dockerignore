@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+docs
+test
+README.md
+PROYECTO.md
