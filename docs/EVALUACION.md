@@ -3,20 +3,20 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación III (RepoSense + análisis de calidad + constancia). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-17.
+> Generado: 2026-11-18.
 
 ## 1. Veredicto
 
 | Aspecto | Resultado |
 |---|---|
 | Tipo de proyecto | backend |
-| Índice de calidad de servicios | **31/100** (mínimo 50) |
-| Criterios cumplidos | **13/15** |
-| Aprobado (semáforo) | **NO** |
-| Código (LOC) | 3,313 |
-| Archivos de código | 108 |
+| Índice de calidad de servicios | **100/100** (mínimo 50) |
+| Criterios cumplidos | **15/15** |
+| Aprobado (semáforo) | **SI** |
+| Código (LOC) | 3,390 |
+| Archivos de código | 117 |
 | Tests (archivos) | 27 |
-| Cobertura de líneas | 88.3% (mínimo 80%) |
+| Cobertura de líneas | 88.9% (mínimo 80%) |
 | Capas detectadas | presentacion, logica, datos |
 | Pushes directos a `main` (sin PR) | 0 |
 
@@ -26,7 +26,7 @@
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| blevatino | 47 | 4,019 | 2,921 | 43 | 20 | 100% |
+| blevatino | 48 | 4,118 | 2,921 | 43 | 22 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
@@ -36,7 +36,7 @@
 
 | Alumno | Sesiones | Cumplimiento | Pausa | Recencia | IC | Nivel | Para subir de nivel |
 |---|--:|--:|--:|--:|--:|--|--|
-| blevatino | 20 | 74% | 19 d | 100% | **62** | Aprueba | Cumplimiento 74% (mín. 100%); Pausa 19 d (máx. 5 d) |
+| blevatino | 21 | 76% | 19 d | 93% | **62** | Aprueba | Cumplimiento 76% (mín. 100%); Pausa 19 d (máx. 5 d) |
 
 > Para aprobar el IC: **2 sesiones por semana** sostenidas, sin pausas mayores a **10 días** y con actividad en las **últimas 2 semanas**. Se excluyen merges, bots y al docente. Zona horaria UTC-3.
 
@@ -44,21 +44,17 @@
 
 Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuando el resultado está en rojo, se agregan preguntas para **investigar la causa** (no hay recetas: entender el porqué es parte de la evaluación).
 
-### 1. Índice de calidad de servicios (indice) — A REVISAR
+### 1. Índice de calidad de servicios (indice) — OK
 
 - **Qué mide:** Un resumen numérico (0-100) que combina todas las señales y métricas del análisis, con topes duros por duplicación.
 - **Por qué importa:** Ordena y prioriza la revisión: un índice bajo indica varias señales que conviene mirar juntas.
-- **Tu resultado:** índice **31/100** _(mínimo 50)_
-- **Para investigar la causa:**
-    - ¿En qué momento del proyecto se concentraron los problemas (arranque, integración de partes, cierre)?
-    - ¿El índice bajó por muchas señales chicas o por una o dos graves?
-    - ¿Se revisó el código integrado después de unir el trabajo de cada integrante?
+- **Tu resultado:** índice **100/100** _(mínimo 50)_
 
 ### 2. Duplicación (DRY) (duplicacion) — OK
 
 - **Qué mide:** Porcentaje de bloques de código repetidos (similitud) en el repositorio.
 - **Por qué importa:** Cada copia se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **5.1%** de duplicación _(máximo 15%)_
+- **Tu resultado:** **5.2%** de duplicación _(máximo 15%)_
 
 ### 3. Secretos hardcodeados (SEC) — OK
 
@@ -112,7 +108,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Complejidad ciclomática: cantidad de caminos posibles dentro de una función (condicionales, bucles, casos).
 - **Por qué importa:** Muchos caminos = difícil de seguir y de probar; suelen esconderse casos sin cubrir.
-- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3313 LOC))_
+- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3390 LOC))_
 
 ### 12. Funciones/métodos largos o con muchos parámetros (Tam) — OK
 
@@ -120,46 +116,35 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 - **Por qué importa:** Una función que hace varias cosas cuesta leerla, nombrarla y reutilizarla.
 - **Tu resultado:** **3** función/método(s) largos o con muchos parámetros _(máximo 10 por 1000 LOC)_
 
-### 13. Acoplamiento alto (Acop) — A REVISAR
+### 13. Acoplamiento alto (Acop) — OK
 
 - **Qué mide:** Cuánto depende una unidad de las partes internas de otra.
 - **Por qué importa:** Piezas muy enlazadas hacen que un cambio se propague y que sea difícil reemplazar partes.
-- **Tu resultado:** **18** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
-- **Para investigar la causa:**
-    - ¿Las piezas se conocen en detalle entre sí (acceden a campos o estructuras internas)?
-    - ¿El acceso a datos ocurre desde lugares que no son los responsables?
-    - ¿Se puede cambiar una parte sin tocar las demás?
+- **Tu resultado:** **4** unidad(es) con acoplamiento alto _(máximo 2 por 1000 LOC)_
 
 ### 14. Cobertura de tests (Cob) — OK
 
 - **Qué mide:** Porcentaje de líneas de código ejecutadas por la suite de tests (cobertura real, no cantidad de archivos de test).
 - **Por qué importa:** Un test que existe pero no ejecuta el código no protege de nada: la cobertura muestra qué partes quedan sin verificar.
-- **Tu resultado:** **88.3%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
+- **Tu resultado:** **88.9%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
 
 ### 15. Endpoints del backend (EP) — OK
 
 - **Qué mide:** Cantidad de endpoints (rutas HTTP) expuestos por el backend.
 - **Por qué importa:** El backend se mide por lo que expone: pocos endpoints sugiere poca funcionalidad de servicio.
-- **Tu resultado:** **39** endpoint(s) _(mínimo 5)_
+- **Tu resultado:** **36** endpoint(s) _(mínimo 5)_
 
 ## 5. Observaciones y qué falta
 
-Criterios que hoy están en rojo y, para cada uno, una explicación breve de **cómo corregirlo** hasta alcanzar el nivel de aprobación (perfil `exigente`):
-
-| Criterio | Resultado actual | Meta | Brecha | Cómo alcanzarlo |
-|---|---|---|---|---|
-| Índice de calidad de servicios (indice) | índice **31/100** | mínimo 50 | faltan 19 pts | El índice sólo penaliza lo que **excede** los umbrales de cada criterio: si tenés todo en verde, el índice es 100. Si está en rojo, mirá la columna **Brecha** y los criterios en rojo; corregí primero duplicación, SEC, SQL y capas. Meta del perfil exigente: ≥50. |
-| Acoplamiento alto (Acop) | **18** unidad(es) con acoplamiento alto | máximo 2 por 1000 LOC | 18 hallazgo(s); el máximo para 3,313 LOC es 6.6 | Hacé que cada unidad dependa de una interfaz o de un módulo de servicio, no de los detalles internos de otra; evitá acceder a campos ajenos. Meta: ≤2 por 1000 LOC. |
-
-> Empezá por las señales de seguridad (**SEC**, **SQL**) y por la **duplicación**: son las que más pesan en el índice y las más rápidas de verificar a ojo. Después de corregir, volvé a correr la medición: el semáforo se recalcula sobre `main`.
+_Cumple **todos** los criterios del semáforo: no hay nada que arreglar para aprobar. El siguiente objetivo es sostenerlo y mejorar duplicación y diseño._
 
 ## 6. Actividad en clase y fuera de clase
 
-> Se consideran las **27 clases** del período (miércoles y viernes, según `config/constancia.json`; feriados y semanas sin clase descontados). Para cada alumno se muestra la actividad **en cada clase** y también la actividad **fuera de los días de clase** (fines de semana u otros días). `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**.
+> Se consideran las **28 clases** del período (miércoles y viernes, según `config/constancia.json`; feriados y semanas sin clase descontados). Para cada alumno se muestra la actividad **en cada clase** y también la actividad **fuera de los días de clase** (fines de semana u otros días). `Commits` = commits de trabajo (no-merge); `Merges` = merges de PR (también son push). Los días sin actividad dicen **sin actividad**.
 
 ### blevatino
 
-**16/27 clases con actividad** · total del período: 57 commits · 32 merges
+**16/28 clases con actividad** · total del período: 57 commits · 32 merges
 
 | Fecha | Actividad | Repositorios | Commits / merges |
 |---|:--:|---|--:|
@@ -190,8 +175,9 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 | 2026-11-06 | No | sin actividad | 0 / 0 |
 | 2026-11-11 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 23 / 7 |
 | 2026-11-13 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 0 / 9 |
+| 2026-11-18 | No | sin actividad | 0 / 0 |
 
-**Fuera de clase:** 8 fecha(s) con actividad · 81 commits · 13 merges
+**Fuera de clase:** 9 fecha(s) con actividad · 88 commits · 18 merges
 
 | Fecha | Repositorios | Commits / merges |
 |---|---|--:|
@@ -202,31 +188,12 @@ Criterios que hoy están en rojo y, para cada uno, una explicación breve de **c
 | 2026-11-07 | api-gastos, bot-telegram, servicio-ia | 3 / 0 |
 | 2026-11-12 | api-gastos, front-web, servicio-ia | 16 / 3 |
 | 2026-11-14 | api-gastos, bot-telegram, front-web | 6 / 2 |
-| 2026-11-16 | api-gastos | 1 / 1 |
+| 2026-11-16 | api-gastos | 1 / 0 |
+| 2026-11-17 | api-gastos, bot-telegram, front-web, servicio-ia | 7 / 6 |
 
 ## 7. Anexo: dónde mirar
 
-Archivos donde el análisis encontró cada señal en rojo (sin número de línea, a propósito):
-
-**Acoplamiento alto (Acop)** — 18 archivo(s):
-- `src/auth/controllers/auth.controller.ts`
-- `src/auth/controllers/telegram-auth.controller.ts`
-- `src/auth/services/auth-registro.service.ts`
-- `src/auth/services/auth-telegram.service.ts`
-- `src/categorias/services/categorias.service.ts`
-- `src/chat/chat.controller.ts`
-- `src/chat/chat.service.ts`
-- `src/common/filters/prisma-client-exception.filter.ts`
-- `src/gastos/controllers/gastos-bot.controller.ts`
-- `src/gastos/controllers/gastos-detalle.controller.ts`
-- `src/gastos/controllers/gastos-recurrentes.controller.ts`
-- `src/gastos/services/gastos-listado.service.ts`
-- `src/gastos/services/gastos-resumen.service.ts`
-- `src/gastos/services/gastos-ultimos.service.ts`
-- `src/gastos/services/gastos.service.ts`
-- `src/grupos/grupos.controller.ts`
-- `src/grupos/grupos.service.ts`
-- `src/presupuestos/presupuestos.controller.ts`
+_No hay criterios en rojo con archivos asociados._
 
 ---
 _Informe generado por la cátedra. Los umbrales corresponden al perfil `exigente`. Ante dudas, revisá el archivo señalado y el criterio en `CRITERIOS-CALIDAD.md`._
