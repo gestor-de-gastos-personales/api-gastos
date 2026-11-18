@@ -155,6 +155,34 @@ services:
       retries: 6
       start_period: 5s
 
+  # Prisma Studio para inspeccionar la base desde el navegador.
+  prisma-studio:
+    build:
+      context: ../../api-gastos
+      target: migrate
+    container_name: mangos-prisma-studio
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-gestor_de_gastos_db}?schema=public
+      NODE_ENV: development
+    ports:
+      - "${PRISMA_STUDIO_PORT:-5555}:5555"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      [
+        "npx",
+        "prisma",
+        "studio",
+        "--hostname",
+        "0.0.0.0",
+        "--port",
+        "5555",
+        "--browser",
+        "none",
+      ]
+
   # Opcional. Levantalo con: docker compose --profile ollama up -d
   # y poné AI_PROVIDER=ollama en servicio-ia/.env.
   ollama:
