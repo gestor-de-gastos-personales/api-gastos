@@ -3,7 +3,6 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { CategoriasModule } from './categorias/categorias.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { PresupuestosModule } from './presupuestos/presupuestos.module.js';
-import { GruposModule } from './grupos/grupos.module.js';
 import { ChatModule } from './chat/chat.module.js';
 
 export const FEATURES = {
@@ -12,6 +11,5 @@ export const FEATURES = {
   CategoriasModule,
   AuthModule,
   PresupuestosModule,
-  GruposModule,
   ChatModule,
 };

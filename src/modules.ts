@@ -7,6 +7,5 @@ export const MODULOS_FEATURE = [
   FEATURES.CategoriasModule,
   FEATURES.AuthModule,
   FEATURES.PresupuestosModule,
-  FEATURES.GruposModule,
   FEATURES.ChatModule,
 ];
