@@ -3,7 +3,7 @@
 
 > Documento **generado automáticamente** por la cátedra de Programación III (RepoSense + análisis de calidad + constancia). **No editar a mano**: se regenera en cada evaluación.
 > Rama evaluada: `main`. Análisis **heurístico** (regex + métricas): es una criba para orientar la revisión, **no una nota**.
-> Generado: 2026-11-18.
+> Generado: 2026-11-19.
 
 ## 1. Veredicto
 
@@ -13,10 +13,10 @@
 | Índice de calidad de servicios | **100/100** (mínimo 50) |
 | Criterios cumplidos | **15/15** |
 | Aprobado (semáforo) | **SI** |
-| Código (LOC) | 3,390 |
-| Archivos de código | 117 |
-| Tests (archivos) | 27 |
-| Cobertura de líneas | 88.9% (mínimo 80%) |
+| Código (LOC) | 3,242 |
+| Archivos de código | 111 |
+| Tests (archivos) | 26 |
+| Cobertura de líneas | 90.8% (mínimo 80%) |
 | Capas detectadas | presentacion, logica, datos |
 | Pushes directos a `main` (sin PR) | 0 |
 
@@ -26,7 +26,7 @@
 
 | Autor | Commits | Código (LOC) | Tests (LOC) | Docs (LOC) | Días activos | % del código |
 |---|---:|---:|---:|---:|---:|---:|
-| blevatino | 48 | 4,118 | 2,921 | 43 | 22 | 100% |
+| blevatino | 53 | 3,990 | 2,869 | 161 | 23 | 100% |
 
 > _El LOC de autoría lo calcula RepoSense sobre el historial y puede diferir del LOC de código del análisis de calidad (que mira solo el estado de `main`)._
 
@@ -36,7 +36,7 @@
 
 | Alumno | Sesiones | Cumplimiento | Pausa | Recencia | IC | Nivel | Para subir de nivel |
 |---|--:|--:|--:|--:|--:|--|--|
-| blevatino | 21 | 76% | 19 d | 93% | **62** | Aprueba | Cumplimiento 76% (mín. 100%); Pausa 19 d (máx. 5 d) |
+| blevatino | 22 | 79% | 19 d | 93% | **64** | Aprueba | Cumplimiento 79% (mín. 100%); Pausa 19 d (máx. 5 d) |
 
 > Para aprobar el IC: **2 sesiones por semana** sostenidas, sin pausas mayores a **10 días** y con actividad en las **últimas 2 semanas**. Se excluyen merges, bots y al docente. Zona horaria UTC-3.
 
@@ -54,7 +54,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de bloques de código repetidos (similitud) en el repositorio.
 - **Por qué importa:** Cada copia se mantiene por separado: un arreglo hay que repetirlo y los defectos se multiplican.
-- **Tu resultado:** **5.2%** de duplicación _(máximo 15%)_
+- **Tu resultado:** **3.3%** de duplicación _(máximo 15%)_
 
 ### 3. Secretos hardcodeados (SEC) — OK
 
@@ -108,7 +108,7 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Complejidad ciclomática: cantidad de caminos posibles dentro de una función (condicionales, bucles, casos).
 - **Por qué importa:** Muchos caminos = difícil de seguir y de probar; suelen esconderse casos sin cubrir.
-- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3390 LOC))_
+- **Tu resultado:** **2** bloque(s) de complejidad alta _(máximo 5 por 1000 LOC (tenés 3242 LOC))_
 
 ### 12. Funciones/métodos largos o con muchos parámetros (Tam) — OK
 
@@ -126,13 +126,13 @@ Cada aspecto indica **qué mide**, **por qué importa** y **tu resultado**. Cuan
 
 - **Qué mide:** Porcentaje de líneas de código ejecutadas por la suite de tests (cobertura real, no cantidad de archivos de test).
 - **Por qué importa:** Un test que existe pero no ejecuta el código no protege de nada: la cobertura muestra qué partes quedan sin verificar.
-- **Tu resultado:** **88.9%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
+- **Tu resultado:** **90.8%** de líneas cubiertas · fuente: ejecución: vitest _(mínimo 80% de líneas)_
 
 ### 15. Endpoints del backend (EP) — OK
 
 - **Qué mide:** Cantidad de endpoints (rutas HTTP) expuestos por el backend.
 - **Por qué importa:** El backend se mide por lo que expone: pocos endpoints sugiere poca funcionalidad de servicio.
-- **Tu resultado:** **36** endpoint(s) _(mínimo 5)_
+- **Tu resultado:** **33** endpoint(s) _(mínimo 5)_
 
 ## 5. Observaciones y qué falta
 
@@ -144,7 +144,7 @@ _Cumple **todos** los criterios del semáforo: no hay nada que arreglar para apr
 
 ### blevatino
 
-**16/28 clases con actividad** · total del período: 57 commits · 32 merges
+**17/28 clases con actividad** · total del período: 59 commits · 37 merges
 
 | Fecha | Actividad | Repositorios | Commits / merges |
 |---|:--:|---|--:|
@@ -175,9 +175,9 @@ _Cumple **todos** los criterios del semáforo: no hay nada que arreglar para apr
 | 2026-11-06 | No | sin actividad | 0 / 0 |
 | 2026-11-11 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 23 / 7 |
 | 2026-11-13 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 0 / 9 |
-| 2026-11-18 | No | sin actividad | 0 / 0 |
+| 2026-11-18 | **Sí** | api-gastos, bot-telegram, front-web, servicio-ia | 2 / 5 |
 
-**Fuera de clase:** 9 fecha(s) con actividad · 88 commits · 18 merges
+**Fuera de clase:** 9 fecha(s) con actividad · 88 commits · 14 merges
 
 | Fecha | Repositorios | Commits / merges |
 |---|---|--:|
@@ -189,7 +189,7 @@ _Cumple **todos** los criterios del semáforo: no hay nada que arreglar para apr
 | 2026-11-12 | api-gastos, front-web, servicio-ia | 16 / 3 |
 | 2026-11-14 | api-gastos, bot-telegram, front-web | 6 / 2 |
 | 2026-11-16 | api-gastos | 1 / 0 |
-| 2026-11-17 | api-gastos, bot-telegram, front-web, servicio-ia | 7 / 6 |
+| 2026-11-17 | api-gastos, bot-telegram, front-web, servicio-ia | 7 / 2 |
 
 ## 7. Anexo: archivos donde se originan los problemas
 
